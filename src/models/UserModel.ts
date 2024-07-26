@@ -1,24 +1,47 @@
-import { Model } from 'objection';
+import { Model, ModelObject } from 'objection';
 
 export class UserModel extends Model {
   static tableName = 'users';
   id!: string;
   email!: string;
   password!: string;
-  enabled!: boolean;
+  isEnabled!: boolean;
+  isDefaultPassword!: boolean;
+  account_number!: string;
+  balance!: number;
   username!: string;
-  name!: string;
   phone!: string;
+  full_name!: string;
+  pin!: string;
   created_at!: Date;
   updated_at!: Date;
+
   static relationMappings = {
-    transactions: {
+    mutations: {
       relation: Model.HasManyRelation,
-      modelClass: 'TransactionModel',
+      modelClass: 'MutationModel',
       join: {
         from: 'users.id',
-        to: 'transactions.user_id'
+        to: 'mutations.user_id'
+      }
+    },
+    cash_transactions: {
+      relation: Model.HasManyRelation,
+      modelClass: 'CashTransactionModel',
+      join: {
+        from: 'users.id',
+        to: 'cash_transactions.user_id'
+      }
+    },
+    otps: {
+      relation: Model.HasManyRelation,
+      modelClass: 'OtpModel',
+      join: {
+        from: 'users.id',
+        to: 'otps.user_id'
       }
     }
   };
 }
+
+export type User = ModelObject<UserModel>;

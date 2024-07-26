@@ -4,6 +4,7 @@ import knex from 'knex';
 import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
+import { apiRouter } from './routers';
 
 Model.knex(knex(knexConfig));
 dotenv.config();
@@ -13,6 +14,7 @@ app.locals.baseURL = `${process.env.BASE_URL}:${port}`;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use('/api/v1', apiRouter);
 app.listen(port, () => {
   console.log(`Server running on ${app.locals.baseURL}`);
 });

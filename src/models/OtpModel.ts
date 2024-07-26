@@ -1,4 +1,4 @@
-import { Model } from 'objection';
+import { Model, ModelObject } from 'objection';
 
 export class OtpModel extends Model {
   static tableName = 'otps';
@@ -18,3 +18,5 @@ export class OtpModel extends Model {
     }
   };
 }
+
+export type User = ModelObject<OtpModel>;
