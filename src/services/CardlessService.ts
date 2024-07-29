@@ -1,15 +1,18 @@
 import BigNumber from 'bignumber.js';
 import {
   DemoDepositRequest,
-  DemoWithdrawRequest
+  DemoWithdrawRequest,
+  TransactionCardlessRequest
 } from '../dtos/request/transaction-request';
 import {
   toTransactionResponse,
-  TransactionResponse
+  TransactionResponse,
+  TokenResponse
 } from '../dtos/response/transaction-response';
 import { EnumCardlessTransaction } from '../enums/cash-transaction-enum';
 import { EnumMutationType } from '../enums/mutation-type-enum';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
+import { EnumCardlessType } from '../enums/cardless-type-enum';
 import { ResponseError } from '../handlers/response-error';
 import { CardlessTransactionModel } from '../models/CardlessTransactionModel';
 import { MutationModel } from '../models/MutattionModel';
@@ -17,10 +20,61 @@ import { UserModel } from '../models/UserModel';
 import { Validation } from '../validators';
 import {
   DemoDeposit,
-  DemoWithdraw
+  DemoWithdraw,
+  GenerateToken
 } from '../validators/transaction-validation';
+import { encryptToken } from '../helpers/tokenEncryption';
+import { randomTokenGenerate } from '../helpers/randomTokenGenerate';
 
 export class CardlessService {
+  static async tokenGenerate(
+    req: TransactionCardlessRequest
+  ): Promise<TokenResponse> {
+    const userID = req.user_id;
+    const type = req.type;
+
+    const token = randomTokenGenerate();
+
+    try {
+      const tokenGenerateRequest = Validation.validate(GenerateToken.GT, req);
+      const encryptedToken = encryptToken(token, process.env.TOKEN_SECRET_KEY!);
+      const account = await UserModel.query()
+        .findById(req.user_id)
+        .throwIfNotFound();
+
+      if (tokenGenerateRequest.pin !== account.pin) {
+        throw new ResponseError(400, 'Pin salah, mohon coba kembali');
+      } else if (type === EnumCardlessType.WITHDRAW) {
+        await CardlessTransactionModel.query().insert({
+          user_id: userID,
+          amount: 0,
+          expired_at: new Date(Date.now() + 600000),
+          token: JSON.stringify(encryptedToken),
+          status: false,
+          type: EnumCardlessTransaction.WITHDRAW
+        });
+      } else if (type === EnumCardlessType.DEPOSIT) {
+        await CardlessTransactionModel.query().insert({
+          user_id: userID,
+          amount: 0,
+          expired_at: new Date(Date.now() + 7200000),
+          token: JSON.stringify(encryptedToken),
+          status: false,
+          type: EnumCardlessTransaction.WITHDRAW,
+          created_at: new Date(Date.now()),
+          updated_at: new Date(Date.now())
+        });
+      }
+
+      return {
+        token: token,
+        expired_at: new Date(Date.now() + 7200000)
+      };
+    } catch (error) {
+      throw new ResponseError(500, 'Failed to generate Token');
+    }
+  }
+
   static async demoWithdraw(
     req: DemoWithdrawRequest
   ): Promise<TransactionResponse> {

@@ -12,6 +12,13 @@ transactionRouter.post(
   checkPinMiddleware,
   QrController.transferQr
 );
+
+transactionRouter.post(
+  '/generate-token',
+  checkPinMiddleware,
+  CardlessController.tokenGenerate
+);
+
 transactionRouter.post(
   '/demo/setor-tunai',
   checkPinMiddleware,

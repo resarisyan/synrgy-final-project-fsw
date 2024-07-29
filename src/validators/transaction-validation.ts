@@ -7,6 +7,13 @@ export class TransactionValidation {
   });
 }
 
+export class GenerateToken {
+  static GT: ZodType = z.object({
+    user_id: z.string(),
+    pin: z.string()
+  });
+}
+
 export class DemoWithdraw {
   static WD: ZodType = z.object({
     token: z.string(),
