@@ -14,3 +14,18 @@ export type TransactionQrRequest = {
   account_id: string;
   key: string;
 };
+
+export type DemoWithdrawRequest = {
+  token: string;
+  pin: string;
+  user_id: string;
+  access_at: Date;
+};
+
+export type DemoDepositRequest = {
+  amount: number;
+  token: string;
+  pin: string;
+  user_id: string;
+  access_at: Date;
+};

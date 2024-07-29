@@ -40,6 +40,14 @@ export class UserModel extends Model {
         from: 'users.id',
         to: 'otps.user_id'
       }
+    },
+    cardless_transaction: {
+      relation: Model.HasManyRelation,
+      modelClass: 'CardlessTransactionModel',
+      join: {
+        from: 'users.id',
+        to: 'cardless_transaction.user_id'
+      }
     }
   };
 }
