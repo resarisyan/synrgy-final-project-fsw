@@ -10,7 +10,9 @@ export class TransactionValidation {
 export class GenerateToken {
   static GT: ZodType = z.object({
     user_id: z.string(),
-    pin: z.string()
+    pin: z.string(),
+    tokenName: z.string(),
+    type: z.string()
   });
 }
 

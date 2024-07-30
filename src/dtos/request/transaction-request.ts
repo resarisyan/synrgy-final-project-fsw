@@ -33,6 +33,7 @@ export type DemoDepositRequest = {
 
 export type TransactionCardlessRequest = {
   user_id: string;
+  token_name: string;
   amount: number;
   pin: string;
   status: boolean;

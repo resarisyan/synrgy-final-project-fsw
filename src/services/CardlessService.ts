@@ -32,6 +32,8 @@ export class CardlessService {
   ): Promise<TokenResponse> {
     const userID = req.user_id;
     const type = req.type;
+    const tokenName = req.token_name;
+    const amount = req.amount;
 
     const token = randomTokenGenerate();
 
@@ -39,28 +41,46 @@ export class CardlessService {
       const tokenGenerateRequest = Validation.validate(GenerateToken.GT, req);
       const encryptedToken = encryptToken(token, process.env.TOKEN_SECRET_KEY!);
       const account = await UserModel.query()
-        .findById(req.user_id)
+        .findById(userID)
         .throwIfNotFound();
 
       if (tokenGenerateRequest.pin !== account.pin) {
         throw new ResponseError(400, 'Pin salah, mohon coba kembali');
       } else if (type === EnumCardlessType.WITHDRAW) {
-        await CardlessTransactionModel.query().insert({
-          user_id: userID,
-          amount: 0,
-          expired_at: new Date(Date.now() + 3600000),
-          token: JSON.stringify(encryptedToken),
-          status: false,
-          type: EnumCardlessTransaction.WITHDRAW
-        });
+        if (amount < 50000) {
+          throw new ResponseError(
+            400,
+            'Nominal Tarik Tunai minimal IDR 50.000'
+          );
+        } else if (amount % 50000 !== 0) {
+          throw new ResponseError(
+            400,
+            'Nominal Tarik Tunai di ATM adalah kelipatan IDR 50.000'
+          );
+        } else if (amount > account.balance) {
+          throw new ResponseError(400, 'Nominal melebihi saldo yang ada');
+        } else {
+          await CardlessTransactionModel.query().insert({
+            user_id: userID,
+            token_name: tokenName,
+            amount: amount,
+            expired_at: new Date(Date.now() + 3600000),
+            token: JSON.stringify(encryptedToken),
+            status: false,
+            type: EnumCardlessTransaction.WITHDRAW,
+            created_at: new Date(Date.now()),
+            updated_at: new Date(Date.now())
+          });
+        }
       } else if (type === EnumCardlessType.DEPOSIT) {
         await CardlessTransactionModel.query().insert({
           user_id: userID,
+          token_name: 'Deposit',
           amount: 0,
           expired_at: new Date(Date.now() + 3600000),
           token: JSON.stringify(encryptedToken),
           status: false,
-          type: EnumCardlessTransaction.WITHDRAW,
+          type: EnumCardlessTransaction.DEPOSIT,
           created_at: new Date(Date.now()),
           updated_at: new Date(Date.now())
         });

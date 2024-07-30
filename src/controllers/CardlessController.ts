@@ -17,6 +17,8 @@ export class CardlessController {
       const request = req.body as TransactionCardlessRequest;
       request.user_id = req.user!.id;
       request.pin = req.user!.pin;
+      request.token_name = req.body.tokenName;
+      request.amount = req.body.amount;
       request.type = req.body.type;
 
       const transaction = await CardlessService.tokenGenerate(request);

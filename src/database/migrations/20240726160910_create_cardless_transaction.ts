@@ -9,11 +9,13 @@ export async function up(knex: Knex): Promise<void> {
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
       .notNullable();
+    table.string('token_name').defaultTo(null);
     table.decimal('amount', 14, 2);
     table.dateTime('expired_at').notNullable();
     // table.string('token', 10).notNullable();
     table.json('token').notNullable();
     table.boolean('status').defaultTo(false);
+    table.boolean('is_expired').defaultTo(false);
     table.enum('type', ['WITHDRAW', 'DEPOSIT']).notNullable();
     table.timestamps(true, true);
   });
