@@ -10,6 +10,7 @@ export class MutationModel extends Model {
   description?: string;
   user_id!: string;
   account_number?: string;
+  full_name!: string;
   transaction!: EnumTransactionType;
   keperluan?: string;
   created_at!: Date;

@@ -15,6 +15,7 @@ export async function up(knex: Knex): Promise<void> {
       .onUpdate('CASCADE')
       .notNullable();
     table.string('account_number').nullable();
+    table.string('full_name').notNullable();
     table.enum('transaction', ['DEBIT', 'CREDIT']).notNullable();
     table.string('keperluan').nullable();
     table.timestamps(true, true);

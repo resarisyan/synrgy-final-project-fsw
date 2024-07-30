@@ -102,7 +102,6 @@ export class CardlessService {
       TOKEN.authTag,
       process.env.TOKEN_SECRET_KEY!
     );
-    console.log(DECRYPTTOKEN);
 
     // isTokenUsed
     const isTokenUsed = checkTransaction.status;
@@ -149,6 +148,7 @@ export class CardlessService {
     // make mutations
     const result = await MutationModel.transaction(async (trx) => {
       const wdTransaction = await MutationModel.query(trx).insert({
+        full_name: account.full_name,
         amount: checkTransaction.amount,
         type: EnumMutationType.WITHDRAW,
         description: 'Tarik Tunai',
@@ -158,6 +158,7 @@ export class CardlessService {
       });
 
       await MutationModel.query(trx).insert({
+        full_name: account.full_name,
         amount: checkTransaction.amount,
         type: EnumMutationType.WITHDRAW,
         description: 'Tarik Tunai',
@@ -199,7 +200,6 @@ export class CardlessService {
       TOKEN.authTag,
       process.env.TOKEN_SECRET_KEY!
     );
-    console.log(DECRYPTTOKEN);
 
     // isTokenUsed
     const isTokenUsed = checkTransaction.status;
@@ -238,9 +238,6 @@ export class CardlessService {
     const setBalance = new BigNumber(account.balance).plus(
       transactionRequest.amount
     );
-    console.log(setBalance);
-    console.log(account.balance);
-    console.log(transactionRequest.amount);
 
     await UserModel.transaction(async (trx) => {
       await UserModel.query(trx)
@@ -253,6 +250,7 @@ export class CardlessService {
     // make mutations
     const result = await MutationModel.transaction(async (trx) => {
       const depoTransaction = await MutationModel.query(trx).insert({
+        full_name: account.full_name,
         amount: transactionRequest.amount,
         type: EnumMutationType.TOPUP,
         description: 'Setor Tunai',
@@ -262,6 +260,7 @@ export class CardlessService {
       });
 
       await MutationModel.query(trx).insert({
+        full_name: account.full_name,
         amount: transactionRequest.amount,
         type: EnumMutationType.TOPUP,
         description: 'Setor Tunai',
