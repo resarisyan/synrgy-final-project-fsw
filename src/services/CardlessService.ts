@@ -23,7 +23,7 @@ import {
   DemoWithdraw,
   GenerateToken
 } from '../validators/transaction-validation';
-import { encryptToken } from '../helpers/tokenEncryption';
+import { decryptToken, encryptToken } from '../helpers/tokenEncryption';
 import { randomTokenGenerate } from '../helpers/randomTokenGenerate';
 
 export class CardlessService {
@@ -48,7 +48,7 @@ export class CardlessService {
         await CardlessTransactionModel.query().insert({
           user_id: userID,
           amount: 0,
-          expired_at: new Date(Date.now() + 600000),
+          expired_at: new Date(Date.now() + 3600000),
           token: JSON.stringify(encryptedToken),
           status: false,
           type: EnumCardlessTransaction.WITHDRAW
@@ -57,7 +57,7 @@ export class CardlessService {
         await CardlessTransactionModel.query().insert({
           user_id: userID,
           amount: 0,
-          expired_at: new Date(Date.now() + 7200000),
+          expired_at: new Date(Date.now() + 3600000),
           token: JSON.stringify(encryptedToken),
           status: false,
           type: EnumCardlessTransaction.WITHDRAW,
@@ -68,9 +68,10 @@ export class CardlessService {
 
       return {
         token: token,
-        expired_at: new Date(Date.now() + 7200000)
+        expired_at: new Date(Date.now() + 3600000)
       };
-    } catch (error) {
+    } catch (Err) {
+      console.log(Err);
       throw new ResponseError(500, 'Failed to generate Token');
     }
   }
@@ -79,16 +80,29 @@ export class CardlessService {
     req: DemoWithdrawRequest
   ): Promise<TransactionResponse> {
     const transactionRequest = Validation.validate(DemoWithdraw.WD, req);
+
     const account = await UserModel.query()
       .findById(req.user_id)
       .throwIfNotFound();
 
     const checkTransaction = await CardlessTransactionModel.query()
       .where({
-        user_id: transactionRequest.user_id
+        user_id: transactionRequest.user_id,
+        status: false
       })
       .first()
       .throwIfNotFound();
+
+    const tokenString = checkTransaction.token;
+    const TOKEN = JSON.parse(JSON.stringify(tokenString));
+
+    const DECRYPTTOKEN = decryptToken(
+      TOKEN.encryptedData,
+      TOKEN.iv,
+      TOKEN.authTag,
+      process.env.TOKEN_SECRET_KEY!
+    );
+    console.log(DECRYPTTOKEN);
 
     // isTokenUsed
     const isTokenUsed = checkTransaction.status;
@@ -96,13 +110,13 @@ export class CardlessService {
       throw new ResponseError(500, 'Token sudah digunakan');
     }
 
+    //   pengecekan expired
     if (transactionRequest.access_at >= checkTransaction.expired_at) {
-      //   pengecekan expired
       throw new ResponseError(500, 'Token telah expired');
     }
 
     // pengecekan type token withdraw
-    if (transactionRequest.token != checkTransaction.token) {
+    if (transactionRequest.token != DECRYPTTOKEN) {
       throw new ResponseError(400, 'Token salah');
     }
 
@@ -119,9 +133,7 @@ export class CardlessService {
           updated_at: new Date(Date.now()),
           type: EnumCardlessTransaction.WITHDRAW
         })
-        .where({
-          user_id: req.user_id
-        });
+        .findById(checkTransaction.id);
     });
 
     // set user saldo
@@ -172,23 +184,39 @@ export class CardlessService {
 
     const checkTransaction = await CardlessTransactionModel.query()
       .where({
-        user_id: transactionRequest.user_id
+        user_id: transactionRequest.user_id,
+        status: false
       })
       .first()
       .throwIfNotFound();
 
-    if (checkTransaction.status) {
+    const tokenObject = checkTransaction.token;
+    const TOKEN = JSON.parse(JSON.stringify(tokenObject));
+
+    const DECRYPTTOKEN = decryptToken(
+      TOKEN.encryptedData,
+      TOKEN.iv,
+      TOKEN.authTag,
+      process.env.TOKEN_SECRET_KEY!
+    );
+    console.log(DECRYPTTOKEN);
+
+    // isTokenUsed
+    const isTokenUsed = checkTransaction.status;
+    if (isTokenUsed) {
       throw new ResponseError(500, 'Token sudah digunakan');
     }
 
+    //   pengecekan expired
     if (transactionRequest.access_at >= checkTransaction.expired_at) {
-      //   pengecekan expired
       throw new ResponseError(500, 'Token telah expired');
     }
+
     // pengecekan type token withdraw
-    if (transactionRequest.token != checkTransaction.token) {
+    if (transactionRequest.token != DECRYPTTOKEN) {
       throw new ResponseError(400, 'Token salah');
     }
+
     // pengecekan pin
     if (transactionRequest.pin != account.pin) {
       throw new ResponseError(400, 'Pin salah, mohon coba kembali');
@@ -203,9 +231,7 @@ export class CardlessService {
           updated_at: new Date(Date.now()),
           type: EnumCardlessTransaction.DEPOSIT
         })
-        .where({
-          user_id: req.user_id
-        });
+        .findById(checkTransaction.id);
     });
 
     // set user saldo
