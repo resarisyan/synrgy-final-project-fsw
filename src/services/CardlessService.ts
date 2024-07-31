@@ -108,7 +108,9 @@ export class CardlessService {
     const checkTransaction = await CardlessTransactionModel.query()
       .where({
         user_id: transactionRequest.user_id,
-        status: false
+        status: false,
+        is_expired: false,
+        type: EnumCardlessTransaction.WITHDRAW
       })
       .first()
       .throwIfNotFound();
@@ -149,8 +151,8 @@ export class CardlessService {
       await CardlessTransactionModel.query(trx)
         .patch({
           status: true,
-          updated_at: new Date(Date.now()),
-          type: EnumCardlessTransaction.WITHDRAW
+          updated_at: new Date(Date.now())
+          // type: EnumCardlessTransaction.WITHDRAW
         })
         .findById(checkTransaction.id);
     });
@@ -206,7 +208,9 @@ export class CardlessService {
     const checkTransaction = await CardlessTransactionModel.query()
       .where({
         user_id: transactionRequest.user_id,
-        status: false
+        status: false,
+        is_expired: false,
+        type: EnumCardlessTransaction.DEPOSIT
       })
       .first()
       .throwIfNotFound();
@@ -248,8 +252,8 @@ export class CardlessService {
         .patch({
           amount: transactionRequest.amount,
           status: true,
-          updated_at: new Date(Date.now()),
-          type: EnumCardlessTransaction.DEPOSIT
+          updated_at: new Date(Date.now())
+          // type: EnumCardlessTransaction.DEPOSIT
         })
         .findById(checkTransaction.id);
     });
