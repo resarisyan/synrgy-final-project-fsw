@@ -1,5 +1,0 @@
-{
-  "watch": ["src", "./swagger.json"],
-  "ext": "js,ts",
-  "exec": "tsc && node dist/src/app.js"
-}
