@@ -13,6 +13,7 @@ import {
 } from '../dtos/response/transaction-response';
 import { MutationModel } from '../models/MutattionModel';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
+import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
 dotenv.config();
 
 export class QrService {
@@ -32,20 +33,24 @@ export class QrService {
     const result = await MutationModel.transaction(async (trx) => {
       const debitTransaction = await MutationModel.query(trx).insert({
         amount: transactionRequest.amount,
-        type: EnumMutationType.TRANSFER_QR,
+        mutation_type: EnumMutationType.TRANSFER,
         description: transactionRequest.description,
         account_number: account.account_number,
-        user_id: account.user_id,
-        transaction: EnumTransactionType.DEBIT
+        user_id: request.user.id,
+        full_name: account.full_name,
+        transaction_purpose: EnumTransactionPurpose.OTHER,
+        transaction_type: EnumTransactionType.CREDIT
       });
 
       await MutationModel.query(trx).insert({
         amount: transactionRequest.amount,
-        type: EnumMutationType.TRANSFER_QR,
+        mutation_type: EnumMutationType.TRANSFER,
         description: transactionRequest.description,
-        account_number: account.account_number,
-        user_id: account.user_id,
-        transaction: EnumTransactionType.CREDIT
+        account_number: request.user.account_number,
+        user_id: data.account_id,
+        full_name: request.user.full_name,
+        transaction_purpose: EnumTransactionPurpose.OTHER,
+        transaction_type: EnumTransactionType.DEBIT
       });
 
       return debitTransaction;

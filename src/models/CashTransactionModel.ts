@@ -2,7 +2,7 @@ import { Model, ModelObject } from 'objection';
 import { EnumCashTransaction } from '../enums/cash-transaction-enum';
 
 export class CashTransactionModel extends Model {
-  static tableName = 'mutations';
+  static tableName = 'cash_transactions';
   id!: string;
   amount!: number;
   type!: EnumCashTransaction;

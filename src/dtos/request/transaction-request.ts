@@ -1,4 +1,5 @@
 import { EnumMutationType } from '../../enums/mutation-type-enum';
+import { User } from '../../models/UserModel';
 
 export type TransactionRequest = {
   amount: number;
@@ -11,6 +12,6 @@ export type TransactionRequest = {
 export type TransactionQrRequest = {
   amount: number;
   description?: string;
-  account_id: string;
+  user: User;
   key: string;
 };

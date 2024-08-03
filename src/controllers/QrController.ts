@@ -24,7 +24,7 @@ export class QrController {
   static async transferQr(req: UserRequest, res: Response, next: NextFunction) {
     try {
       const request = req.body as TransactionQrRequest;
-      request.account_id = req.user!.id;
+      request.user = req.user!;
       const transaction = await QrService.transferQr(request);
       res.json({
         success: true,
