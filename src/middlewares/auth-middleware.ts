@@ -20,7 +20,7 @@ export const authMiddleware = async (
     // }
 
     // const jwtToken = authHeader.split(' ')[1];
-    // const res = (await fetch(`${process.env.AUTH_SERVICE_URL}/auth/me`, {
+    // const res = (await fetch(`${process.env.BE_JAVA_URL}/account/detail`, {
     //   headers: {
     //     Authorization: `Bearer ${jwtToken}`
     //   }

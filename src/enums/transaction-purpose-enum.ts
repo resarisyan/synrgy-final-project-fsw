@@ -1,0 +1,6 @@
+export enum EnumTransactionPurpose {
+  OTHER = 'OTHER',
+  INVESTMENT = 'INVESTMENT',
+  WEALTH_TRANSFER = 'WEALTH_TRANSFER',
+  PURCHASE = 'PURCHASE'
+}

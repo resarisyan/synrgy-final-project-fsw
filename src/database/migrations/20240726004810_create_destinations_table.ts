@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
       .notNullable();
     table.string('name').notNullable();
     table.string('account_number').notNullable();
-    table.boolean('is_favorite').defaultTo(false);
+    table.boolean('is_favorites').defaultTo(false);
     table.timestamps(true, true);
   });
 }

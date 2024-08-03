@@ -1,11 +1,11 @@
 import { Response, NextFunction } from 'express';
 import { UserRequest } from '../dtos/request/user-request';
 import {
-  DemoDepositRequest,
-  DemoWithdrawRequest,
-  TransactionCardlessRequest
-} from '../dtos/request/transaction-request';
-import { CardlessService } from '../services/CardlessService';
+  CashTransactionCreateRequest,
+  CashTransactionStoreRequest
+} from '../dtos/request/cash-transaction-request';
+import { CashTransactionService } from '../services/CashTransactionService';
+import { EnumCashTransaction } from '../enums/cash-transaction-enum';
 
 export class CardlessController {
   static tokenGenerate = async (
@@ -14,14 +14,9 @@ export class CardlessController {
     next: NextFunction
   ) => {
     try {
-      const request = req.body as TransactionCardlessRequest;
-      request.user_id = req.user!.id;
-      request.pin = req.user!.pin;
-      request.token_name = req.body.tokenName;
-      request.amount = req.body.amount;
-      request.type = req.body.type;
-
-      const transaction = await CardlessService.tokenGenerate(request);
+      const request = req.body as CashTransactionCreateRequest;
+      request.user = req.user!;
+      const transaction = await CashTransactionService.create(request);
       res.json({
         success: true,
         message: 'Token Generated Successfully',
@@ -32,22 +27,19 @@ export class CardlessController {
     }
   };
 
-  static demoTarikTunai = async (
+  static demoWithdraw = async (
     req: UserRequest,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const request = req.body as DemoWithdrawRequest;
-      request.user_id = req.user!.id;
-      request.access_at = new Date(Date.now());
-      // console.log(request);
-      // console.log(new Date(Date.now() + 60 * 60 * 1000));
-
-      const transaction = await CardlessService.demoWithdraw(request);
+      const request = req.body as CashTransactionStoreRequest;
+      request.type = EnumCashTransaction.WITHDRAW;
+      request.user = req.user!;
+      const transaction = await CashTransactionService.store(request);
       res.json({
         success: true,
-        message: 'Tarik Tunai Successfully',
+        message: 'Withdraw Successfully',
         data: transaction
       });
     } catch (error) {
@@ -55,22 +47,19 @@ export class CardlessController {
     }
   };
 
-  static demoSetorTunai = async (
+  static demoTopup = async (
     req: UserRequest,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const request = req.body as DemoDepositRequest;
-      request.user_id = req.user!.id;
-      request.access_at = new Date(Date.now());
-      // console.log(request);
-      console.log(new Date(Date.now() + 60 * 60 * 1000));
-
-      const transaction = await CardlessService.demoDeposit(request);
+      const request = req.body as CashTransactionStoreRequest;
+      request.type = EnumCashTransaction.TOPUP;
+      request.user = req.user!;
+      const transaction = await CashTransactionService.store(request);
       res.json({
         success: true,
-        message: 'Setor Tunai Successfully',
+        message: 'Topup Successfully',
         data: transaction
       });
     } catch (error) {

@@ -1,0 +1,127 @@
+import { EnumMutationType } from '../enums/mutation-type-enum';
+import { EnumTransactionType } from '../enums/transaction-type-enum';
+import { ResponseError } from '../handlers/response-error';
+import { MutationModel } from '../models/MutattionModel';
+import { UserModel } from '../models/UserModel';
+import { Validation } from '../validators';
+import { randomTokenGenerate } from '../helpers/randomTokenGenerate';
+import { EnumCashTransaction } from '../enums/cash-transaction-enum';
+import { CashTransactionModel } from '../models/CashTransactionModel';
+import { CashTransactionValidation } from '../validators/cash-transaction-validation';
+import {
+  CashTransactionCreateRequest,
+  CashTransactionStoreRequest
+} from '../dtos/request/cash-transaction-request';
+import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
+import {
+  CashTransactionResponse,
+  toCashTransactionResponse
+} from '../dtos/response/cash-transaction-response';
+
+export class CashTransactionService {
+  static async create(
+    request: CashTransactionCreateRequest
+  ): Promise<CashTransactionResponse> {
+    const token = randomTokenGenerate();
+    const currentTime = new Date(Date.now());
+    const oneHourLater = new Date(currentTime.getTime() + 3600000);
+
+    try {
+      const createRequest = Validation.validate(
+        CashTransactionValidation.CREATE,
+        request
+      );
+
+      if (createRequest.type === EnumCashTransaction.WITHDRAW) {
+        if (
+          createRequest.amount < 50000 ||
+          createRequest.amount % 50000 !== 0
+        ) {
+          throw new ResponseError(
+            400,
+            'Nominal harus kelipatan 50.000 dan minimal 50.000'
+          );
+        }
+
+        if (createRequest.amount > createRequest.user.balance) {
+          throw new ResponseError(400, 'Saldo tidak mencukupi');
+        }
+      }
+
+      const data = await CashTransactionModel.query().insert({
+        user_id: createRequest.user.id,
+        amount: createRequest.amount,
+        expired_at: oneHourLater,
+        type: createRequest.type,
+        code: token,
+        is_success: false,
+        created_at: currentTime,
+        updated_at: currentTime
+      });
+
+      return toCashTransactionResponse(data);
+    } catch (err) {
+      throw new ResponseError(500, 'Failed to generate Token');
+    }
+  }
+
+  static async store(
+    req: CashTransactionStoreRequest
+  ): Promise<CashTransactionResponse> {
+    const storeRequest = Validation.validate(
+      CashTransactionValidation.STORE,
+      req
+    );
+
+    const cashTransaction = await CashTransactionModel.query()
+      .where({
+        user_id: storeRequest.user.id,
+        token: storeRequest.token
+      })
+      .first()
+      .throwIfNotFound();
+
+    if (cashTransaction.is_success) {
+      throw new ResponseError(500, 'Token sudah digunakan');
+    } else if (cashTransaction.expired_at <= new Date(Date.now())) {
+      throw new ResponseError(500, 'Token telah expired');
+    }
+
+    const isWithdraw = storeRequest.type === EnumCashTransaction.WITHDRAW;
+
+    const result = await UserModel.transaction(async (trx) => {
+      const user = await UserModel.query(trx)
+        .findById(storeRequest.user.id)
+        .forUpdate()
+        .throwIfNotFound();
+
+      const newBalance = isWithdraw
+        ? user.balance - cashTransaction.amount
+        : user.balance + cashTransaction.amount;
+
+      await user.$query(trx).patch({ balance: newBalance });
+
+      await MutationModel.query(trx).insert({
+        amount: cashTransaction.amount,
+        mutation_type: EnumMutationType.TRANSFER,
+        description: isWithdraw ? 'Withdraw' : 'Topup',
+        account_number: user.account_number,
+        user_id: user.id,
+        full_name: user.full_name,
+        transaction_purpose: EnumTransactionPurpose.OTHER,
+        transaction_type: isWithdraw
+          ? EnumTransactionType.DEBIT
+          : EnumTransactionType.CREDIT
+      });
+
+      await cashTransaction.$query(trx).patch({
+        is_success: true,
+        updated_at: new Date(Date.now())
+      });
+
+      return cashTransaction;
+    });
+
+    return toCashTransactionResponse(result);
+  }
+}

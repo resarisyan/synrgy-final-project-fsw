@@ -1,18 +1,18 @@
 import { Model, ModelObject } from 'objection';
-
 export class UserModel extends Model {
   static tableName = 'users';
   id!: string;
+  full_name!: string;
+  username!: string;
   email!: string;
+  phone!: string;
   password!: string;
-  isEnabled!: boolean;
-  isDefaultPassword!: boolean;
+  verified!: boolean;
+  pin!: string;
   account_number!: string;
   balance!: number;
-  username!: string;
-  phone!: string;
-  full_name!: string;
-  pin!: string;
+  enabled!: boolean;
+  default_password!: boolean;
   created_at!: Date;
   updated_at!: Date;
 
@@ -39,14 +39,6 @@ export class UserModel extends Model {
       join: {
         from: 'users.id',
         to: 'otps.user_id'
-      }
-    },
-    cardless_transaction: {
-      relation: Model.HasManyRelation,
-      modelClass: 'CardlessTransactionModel',
-      join: {
-        from: 'users.id',
-        to: 'cardless_transaction.user_id'
       }
     }
   };

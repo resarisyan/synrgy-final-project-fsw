@@ -1,5 +1,5 @@
 import { EnumMutationType } from '../../enums/mutation-type-enum';
-import { EnumCardlessType } from '../../enums/cardless-type-enum';
+import { User } from '../../models/UserModel';
 
 export type TransactionRequest = {
   amount: number;
@@ -12,30 +12,6 @@ export type TransactionRequest = {
 export type TransactionQrRequest = {
   amount: number;
   description?: string;
-  account_id: string;
+  user: User;
   key: string;
-};
-
-export type DemoWithdrawRequest = {
-  token: string;
-  pin: string;
-  user_id: string;
-  access_at: Date;
-};
-
-export type DemoDepositRequest = {
-  amount: number;
-  token: string;
-  pin: string;
-  user_id: string;
-  access_at: Date;
-};
-
-export type TransactionCardlessRequest = {
-  user_id: string;
-  token_name: string;
-  amount: number;
-  pin: string;
-  status: boolean;
-  type: EnumCardlessType;
 };

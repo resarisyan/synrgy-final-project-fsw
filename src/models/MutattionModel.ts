@@ -1,18 +1,20 @@
 import { Model, ModelObject } from 'objection';
 import { EnumMutationType } from '../enums/mutation-type-enum';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
+import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
 
 export class MutationModel extends Model {
   static tableName = 'mutations';
   id!: string;
-  amount!: number;
-  type!: EnumMutationType;
-  description?: string;
   user_id!: string;
-  account_number?: string;
+  amount!: number;
+  description?: string;
+  is_favorites!: boolean;
+  mutation_type!: EnumMutationType;
+  account_number!: string;
   full_name!: string;
-  transaction!: EnumTransactionType;
-  keperluan?: string;
+  transaction_purpose!: EnumTransactionPurpose;
+  transaction_type!: EnumTransactionType;
   created_at!: Date;
   updated_at!: Date;
 

@@ -20,12 +20,12 @@ transactionRouter.post(
 );
 
 transactionRouter.post(
-  '/demo/setor-tunai',
+  '/demo-withdraw',
   checkPinMiddleware,
-  CardlessController.demoSetorTunai
+  CardlessController.demoWithdraw
 );
 transactionRouter.post(
-  '/demo/tarik-tunai',
+  '/demo-topup',
   checkPinMiddleware,
-  CardlessController.demoTarikTunai
+  CardlessController.demoTopup
 );
