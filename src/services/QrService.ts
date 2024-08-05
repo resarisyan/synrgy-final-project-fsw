@@ -14,6 +14,7 @@ import {
 import { MutationModel } from '../models/MutattionModel';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
 import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
+import { UserModel } from '../models/UserModel';
 dotenv.config();
 
 export class QrService {
@@ -26,14 +27,30 @@ export class QrService {
     );
     const decryptedData = decryptData(request.key, process.env.QR_SECRET_KEY!);
     const data = JSON.parse(decryptedData);
-    const account = await MutationModel.query()
-      .findById(data.account_id)
-      .throwIfNotFound();
-
     const result = await MutationModel.transaction(async (trx) => {
+      const account = await UserModel.query(trx)
+        .findById(data.account_id)
+        .forUpdate()
+        .throwIfNotFound();
+
+      const user = await UserModel.query(trx)
+        .findById(request.user.id)
+        .forUpdate()
+        .throwIfNotFound();
+
+      if (user.balance < transactionRequest.amount) {
+        throw new ResponseError(400, 'Saldo tidak mencukupi');
+      }
+
+      user.balance -= transactionRequest.amount;
+      await user.$query(trx).patch({ balance: user.balance });
+
+      account.balance += transactionRequest.amount;
+      await account.$query(trx).patch({ balance: account.balance });
+
       const debitTransaction = await MutationModel.query(trx).insert({
         amount: transactionRequest.amount,
-        mutation_type: EnumMutationType.TRANSFER,
+        mutation_type: EnumMutationType.QR,
         description: transactionRequest.description,
         account_number: account.account_number,
         user_id: request.user.id,
@@ -44,7 +61,7 @@ export class QrService {
 
       await MutationModel.query(trx).insert({
         amount: transactionRequest.amount,
-        mutation_type: EnumMutationType.TRANSFER,
+        mutation_type: EnumMutationType.QR,
         description: transactionRequest.description,
         account_number: request.user.account_number,
         user_id: data.account_id,

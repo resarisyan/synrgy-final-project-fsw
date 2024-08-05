@@ -1,0 +1,234 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "API Documentation",
+    "description": "API Documentation",
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:9000",
+      "description": "Local server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Transactions",
+      "description": "This is a transaction API"
+    }
+  ],
+  "paths": {
+    "/api/v1/transactions/transfer-qr": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Transfer QR",
+        "description": "Transfer QR",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/definitions/TransferQRRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/generate-qr": {
+      "get": {
+        "tags": ["Transactions"],
+        "summary": "Generate QR",
+        "description": "Generate QR",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/generate-token": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Generate Token",
+        "description": "Generate Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/definitions/CashTransactionCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/demo-withdraw": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Demo Withdraw",
+        "description": "Demo Withdraw",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/definitions/CashTransactionStoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/v1/transactions/demo-topup": {
+      "post": {
+        "tags": ["Transactions"],
+        "summary": "Demo Topup",
+        "description": "Demo Topup",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/definitions/CashTransactionStoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "definitions": {
+      "TransferQRRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          },
+          "key": {
+            "type": "string"
+          }
+        },
+        "required": ["amount", "description", "key"]
+      },
+      "CashTransactionCreateRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["TOPUP", "WITHDRAW"]
+          }
+        },
+        "required": ["amount", "type"]
+      },
+      "CashTransactionStoreRequest": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string"
+          }
+        },
+        "required": ["token"]
+      }
+    }
+  }
+}

@@ -2,16 +2,15 @@ import { Knex } from 'knex';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const connection: Knex.ConnectionConfig = {
-  host: process.env.DB_HOST as string,
-  database: process.env.DB_NAME as string,
-  user: process.env.DB_USER as string,
-  password: process.env.DB_PASSWORD as string
-};
-
 const knexConfig: Knex.Config = {
   client: 'pg',
-  connection,
+  connection: {
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    ssl: { rejectUnauthorized: false }
+  },
   pool: {
     min: 2,
     max: 10

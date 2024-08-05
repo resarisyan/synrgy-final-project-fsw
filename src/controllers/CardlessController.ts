@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Response } from 'express';
 import { UserRequest } from '../dtos/request/user-request';
 import {
   CashTransactionCreateRequest,
@@ -6,13 +6,10 @@ import {
 } from '../dtos/request/cash-transaction-request';
 import { CashTransactionService } from '../services/CashTransactionService';
 import { EnumCashTransaction } from '../enums/cash-transaction-enum';
+import { errorResponse } from '../dtos/response/error-response';
 
 export class CardlessController {
-  static tokenGenerate = async (
-    req: UserRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+  static tokenGenerate = async (req: UserRequest, res: Response) => {
     try {
       const request = req.body as CashTransactionCreateRequest;
       request.user = req.user!;
@@ -23,15 +20,11 @@ export class CardlessController {
         data: transaction
       });
     } catch (error) {
-      next(error);
+      errorResponse({ error: error as Error, res });
     }
   };
 
-  static demoWithdraw = async (
-    req: UserRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+  static demoWithdraw = async (req: UserRequest, res: Response) => {
     try {
       const request = req.body as CashTransactionStoreRequest;
       request.type = EnumCashTransaction.WITHDRAW;
@@ -43,15 +36,11 @@ export class CardlessController {
         data: transaction
       });
     } catch (error) {
-      next(error);
+      errorResponse({ error: error as Error, res });
     }
   };
 
-  static demoTopup = async (
-    req: UserRequest,
-    res: Response,
-    next: NextFunction
-  ) => {
+  static demoTopup = async (req: UserRequest, res: Response) => {
     try {
       const request = req.body as CashTransactionStoreRequest;
       request.type = EnumCashTransaction.TOPUP;
@@ -63,7 +52,7 @@ export class CardlessController {
         data: transaction
       });
     } catch (error) {
-      next(error);
+      errorResponse({ error: error as Error, res });
     }
   };
 }

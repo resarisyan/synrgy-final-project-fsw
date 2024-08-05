@@ -1,4 +1,5 @@
 export enum EnumMutationType {
   TRANSFER = 'TRANSFER',
-  TRANSFER_QR = 'QRIS'
+  QRIS = 'QRIS',
+  QR = 'QR'
 }
