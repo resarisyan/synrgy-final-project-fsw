@@ -1,13 +1,24 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { ZodError } from 'zod';
-import { ResponseError } from '../handlers/response-error';
+import { NotFoundError } from 'objection';
+import { ResponseError } from '../../handlers/response-error.js';
 
-export const errorMiddleware = (error: Error, req: Request, res: Response) => {
+interface ErrorResponseParams {
+  error: Error;
+  res: Response;
+}
+
+export const errorResponse = ({ error, res }: ErrorResponseParams) => {
   if (error instanceof ZodError) {
     res.status(400).json({
       success: false,
       message: 'Validation error',
       errors: error.errors
+    });
+  } else if (error instanceof NotFoundError) {
+    res.status(404).json({
+      success: false,
+      message: 'Not found'
     });
   } else if (error instanceof ResponseError) {
     res.status(error.status).json({

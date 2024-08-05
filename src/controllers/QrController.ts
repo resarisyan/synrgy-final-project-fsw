@@ -1,14 +1,11 @@
-import { Response, NextFunction } from 'express';
+import { Response } from 'express';
 import { UserRequest } from '../dtos/request/user-request';
 import { QrService } from '../services/QrService';
 import { TransactionQrRequest } from '../dtos/request/transaction-request';
+import { errorResponse } from '../dtos/response/error-response';
 
 export class QrController {
-  static async generateQrCode(
-    req: UserRequest,
-    res: Response,
-    next: NextFunction
-  ) {
+  static async generateQrCode(req: UserRequest, res: Response) {
     try {
       const qrCode = await QrService.generateQrCode(req);
       res.json({
@@ -17,11 +14,11 @@ export class QrController {
         data: qrCode
       });
     } catch (error) {
-      next(error);
+      errorResponse({ error: error as Error, res });
     }
   }
 
-  static async transferQr(req: UserRequest, res: Response, next: NextFunction) {
+  static async transferQr(req: UserRequest, res: Response) {
     try {
       const request = req.body as TransactionQrRequest;
       request.user = req.user!;
@@ -32,7 +29,7 @@ export class QrController {
         data: transaction
       });
     } catch (error) {
-      next(error);
+      errorResponse({ error: error as Error, res });
     }
   }
 }

@@ -11,6 +11,4 @@ const randomTokenGenerate = () => {
   return result;
 };
 
-console.log(randomTokenGenerate());
-
 export { randomTokenGenerate };

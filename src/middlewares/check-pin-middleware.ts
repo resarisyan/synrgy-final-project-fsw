@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express';
 import { UserModel } from '../models/UserModel'; // Sesuaikan dengan model user yang Anda gunakan
 import { UserRequest } from '../dtos/request/user-request';
 import { ResponseError } from '../handlers/response-error';
+import { errorResponse } from '../dtos/response/error-response';
 
 export const checkPinMiddleware = async (
   req: UserRequest,
@@ -24,8 +25,9 @@ export const checkPinMiddleware = async (
     if (pin !== user.pin) {
       return next(new ResponseError(401, 'Invalid PIN'));
     }
-    next();
-  } catch (error) {
-    res.status(500).json({ message: 'Internal Server Error' });
+  } catch (err) {
+    return errorResponse({ error: err as Error, res });
   }
+
+  next();
 };

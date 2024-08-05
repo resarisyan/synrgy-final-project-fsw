@@ -1,7 +1,11 @@
-import { User } from '../../models/UserModel';
-
 export type ApiUserResponse = {
   success: boolean;
   message: string;
-  data: User;
+  data: {
+    user_id: string;
+    account_number: string;
+    full_name: string;
+    email: string;
+    balance: string;
+  };
 };
