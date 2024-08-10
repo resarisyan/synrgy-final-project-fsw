@@ -13,6 +13,10 @@
     {
       "url": "http://localhost:9000",
       "description": "Local server"
+    },
+    {
+      "url": "https://tart-frannie-resa-5a74b69b.koyeb.app",
+      "description": "Production server"
     }
   ],
   "tags": [
