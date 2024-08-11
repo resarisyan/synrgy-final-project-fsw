@@ -50,7 +50,7 @@ export class CashTransactionService {
       }
 
       const data = await CashTransactionModel.query().insert({
-        user_id: createRequest.user.id,
+        user_id: request.user.id,
         amount: createRequest.amount,
         expired_at: oneHourLater,
         type: createRequest.type,
