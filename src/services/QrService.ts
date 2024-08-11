@@ -15,6 +15,7 @@ import { MutationModel } from '../models/MutattionModel';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
 import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
 import { UserModel } from '../models/UserModel';
+import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
 export class QrService {
@@ -49,6 +50,7 @@ export class QrService {
       await account.$query(trx).patch({ balance: account.balance });
 
       const debitTransaction = await MutationModel.query(trx).insert({
+        id: uuidv4(),
         amount: transactionRequest.amount,
         mutation_type: EnumMutationType.QR,
         description: transactionRequest.description,
@@ -56,7 +58,8 @@ export class QrService {
         user_id: request.user.id,
         full_name: account.full_name,
         transaction_purpose: EnumTransactionPurpose.OTHER,
-        transaction_type: EnumTransactionType.CREDIT
+        transaction_type: EnumTransactionType.CREDIT,
+        created_at: new Date(Date.now())
       });
 
       await MutationModel.query(trx).insert({

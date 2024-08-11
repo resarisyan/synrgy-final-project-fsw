@@ -17,6 +17,7 @@ import {
   CashTransactionResponse,
   toCashTransactionResponse
 } from '../dtos/response/cash-transaction-response';
+import { v4 as uuidv4 } from 'uuid';
 
 export class CashTransactionService {
   static async create(
@@ -61,6 +62,7 @@ export class CashTransactionService {
 
       return toCashTransactionResponse(data);
     } catch (err) {
+      console.error(err);
       throw new ResponseError(500, 'Failed to generate Token');
     }
   }
@@ -75,8 +77,8 @@ export class CashTransactionService {
 
     const cashTransaction = await CashTransactionModel.query()
       .where({
-        user_id: storeRequest.user.id,
-        token: storeRequest.token
+        user_id: req.user.id,
+        code: storeRequest.token
       })
       .first()
       .throwIfNotFound();
@@ -91,7 +93,7 @@ export class CashTransactionService {
 
     const result = await UserModel.transaction(async (trx) => {
       const user = await UserModel.query(trx)
-        .findById(storeRequest.user.id)
+        .findById(req.user.id)
         .forUpdate()
         .throwIfNotFound();
 
@@ -102,6 +104,7 @@ export class CashTransactionService {
       await user.$query(trx).patch({ balance: newBalance });
 
       await MutationModel.query(trx).insert({
+        id: uuidv4(),
         amount: cashTransaction.amount,
         mutation_type: EnumMutationType.TRANSFER,
         description: isWithdraw ? 'Withdraw' : 'Topup',
@@ -111,7 +114,8 @@ export class CashTransactionService {
         transaction_purpose: EnumTransactionPurpose.OTHER,
         transaction_type: isWithdraw
           ? EnumTransactionType.DEBIT
-          : EnumTransactionType.CREDIT
+          : EnumTransactionType.CREDIT,
+        created_at: new Date(Date.now())
       });
 
       await cashTransaction.$query(trx).patch({
