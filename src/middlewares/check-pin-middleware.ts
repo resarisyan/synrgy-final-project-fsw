@@ -13,8 +13,14 @@ export const checkPinMiddleware = async (
     const userId = req.user!.id;
     const pin = req.body.pin;
 
-    if (!userId || !pin) {
-      return next(new ResponseError(400, 'User ID and PIN are required'));
+    console.log('User ID:', userId);
+
+    if (!userId) {
+      return next(new ResponseError(400, 'User ID required'));
+    }
+
+    if (!pin) {
+      return next(new ResponseError(400, 'PIN required'));
     }
 
     const user = await UserModel.query().findById(userId);

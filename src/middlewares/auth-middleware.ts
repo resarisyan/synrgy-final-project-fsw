@@ -14,22 +14,35 @@ export const authMiddleware = async (
 ): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer')) {
+    if (!authHeader) {
       throw new ResponseError(401, 'Token not found');
     }
 
-    const jwtToken = authHeader.split(' ')[1];
-    const res = (await fetch(`${process.env.BE_JAVA_URL}/account/detail`, {
+    const res = await fetch(`${process.env.BE_JAVA_URL}/account/detail`, {
       headers: {
-        Authorization: `Bearer ${jwtToken}`
+        Authorization: `Bearer ${authHeader}`
       }
-    }).then((res) => res.json())) as ApiUserResponse;
+    });
 
-    if (!res.success) {
-      return next(new ResponseError(401, res.message));
+    const data = (await res.json()) as ApiUserResponse;
+    console.log(data);
+
+    if (!data || !data.data) {
+      throw new ResponseError(401, 'Invalid token or user not found');
     }
-    const user = await UserModel.query().findById(res.data.user_id);
+
+    const user = new UserModel();
+    user.id = data.data.user_id;
+    user.full_name = data.data.full_name;
+    user.email = data.data.email;
+    user.account_number = data.data.account_number;
+    user.balance = parseFloat(
+      data.data.balance.replace('Rp', '').replace(',', '')
+    );
+
     req.user = user;
+
+    console.log('User DAta:', req.user);
   } catch (err) {
     return errorResponse({ error: err as Error, res });
   }
