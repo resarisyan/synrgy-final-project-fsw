@@ -19,15 +19,19 @@ export const authMiddleware = async (
     }
 
     const jwtToken = authHeader.split(' ')[1];
-    const res = (await fetch(`${process.env.BE_JAVA_URL}/account/detail`, {
+    const response = await fetch(`${process.env.BE_JAVA_URL}/account/detail`, {
       headers: {
         Authorization: `Bearer ${jwtToken}`
       }
-    }).then((res) => res.json())) as ApiUserResponse;
+    });
 
-    if (!res.success) {
-      return next(new ResponseError(401, res.message));
+    const statusCode = response.status;
+
+    if (statusCode !== 200) {
+      throw new ResponseError(statusCode, 'Token not valid');
     }
+
+    const res = (await response.json()) as ApiUserResponse;
     const user = await UserModel.query().findById(res.data.user_id);
     req.user = user;
   } catch (err) {

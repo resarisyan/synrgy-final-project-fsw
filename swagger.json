@@ -29,6 +29,11 @@
     "/api/v1/transactions/transfer-qr": {
       "post": {
         "tags": ["Transactions"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "summary": "Transfer QR",
         "description": "Transfer QR",
         "requestBody": {
@@ -63,6 +68,11 @@
     "/api/v1/transactions/generate-qr": {
       "get": {
         "tags": ["Transactions"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "summary": "Generate QR",
         "description": "Generate QR",
         "responses": {
@@ -87,6 +97,11 @@
     "/api/v1/transactions/generate-token": {
       "post": {
         "tags": ["Transactions"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "summary": "Generate Token",
         "description": "Generate Token",
         "requestBody": {
@@ -121,6 +136,11 @@
     "/api/v1/transactions/demo-withdraw": {
       "post": {
         "tags": ["Transactions"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "summary": "Demo Withdraw",
         "description": "Demo Withdraw",
         "requestBody": {
@@ -155,6 +175,11 @@
     "/api/v1/transactions/demo-topup": {
       "post": {
         "tags": ["Transactions"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "summary": "Demo Topup",
         "description": "Demo Topup",
         "requestBody": {
