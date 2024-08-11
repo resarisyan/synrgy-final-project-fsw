@@ -80,17 +80,13 @@ export class QrService {
   }
 
   static async generateQrCode(req: UserRequest): Promise<string> {
-    try {
-      const account = req.user!;
-      const data = JSON.stringify({
-        account_id: account.id,
-        account_number: account.account_number
-      });
-      const encryptedData = encryptData(data, process.env.QR_SECRET_KEY!);
-      const qrCode = await QRCode.toDataURL(encryptedData);
-      return qrCode;
-    } catch (error) {
-      throw new ResponseError(500, 'Failed to generate QR code');
-    }
+    const account = req.user!;
+    const data = JSON.stringify({
+      account_id: account.id,
+      account_number: account.account_number
+    });
+    const encryptedData = encryptData(data, process.env.QR_SECRET_KEY!);
+    const qrCode = await QRCode.toDataURL(encryptedData);
+    return qrCode;
   }
 }

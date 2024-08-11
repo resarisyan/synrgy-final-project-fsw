@@ -27,44 +27,37 @@ export class CashTransactionService {
     const currentTime = new Date(Date.now());
     const oneHourLater = new Date(currentTime.getTime() + 3600000);
 
-    try {
-      const createRequest = Validation.validate(
-        CashTransactionValidation.CREATE,
-        request
-      );
+    const createRequest = Validation.validate(
+      CashTransactionValidation.CREATE,
+      request
+    );
 
-      if (createRequest.type === EnumCashTransaction.WITHDRAW) {
-        if (
-          createRequest.amount < 50000 ||
-          createRequest.amount % 50000 !== 0
-        ) {
-          throw new ResponseError(
-            400,
-            'Nominal harus kelipatan 50.000 dan minimal 50.000'
-          );
-        }
-
-        if (createRequest.amount > createRequest.user.balance) {
-          throw new ResponseError(400, 'Saldo tidak mencukupi');
-        }
+    if (createRequest.type === EnumCashTransaction.WITHDRAW) {
+      if (createRequest.amount < 50000 || createRequest.amount % 50000 !== 0) {
+        throw new ResponseError(
+          400,
+          'Nominal harus kelipatan 50.000 dan minimal 50.000'
+        );
       }
 
-      const data = await CashTransactionModel.query().insert({
-        user_id: request.user.id,
-        amount: createRequest.amount,
-        expired_at: oneHourLater,
-        type: createRequest.type,
-        code: token,
-        is_success: false,
-        created_at: currentTime,
-        updated_at: currentTime
-      });
-
-      return toCashTransactionResponse(data);
-    } catch (err) {
-      console.error(err);
-      throw new ResponseError(500, 'Failed to generate Token');
+      console.log('user', request.user);
+      if (createRequest.amount > request.user.balance) {
+        throw new ResponseError(400, 'Saldo tidak mencukupi');
+      }
     }
+
+    const data = await CashTransactionModel.query().insert({
+      user_id: request.user.id,
+      amount: createRequest.amount,
+      expired_at: oneHourLater,
+      type: createRequest.type,
+      code: token,
+      is_success: false,
+      created_at: currentTime,
+      updated_at: currentTime
+    });
+
+    return toCashTransactionResponse(data);
   }
 
   static async store(
@@ -75,6 +68,10 @@ export class CashTransactionService {
       req
     );
 
+    const user = await UserModel.query()
+      .findById(req.user.id)
+      .forUpdate()
+      .throwIfNotFound();
     const cashTransaction = await CashTransactionModel.query()
       .where({
         user_id: req.user.id,
@@ -91,15 +88,17 @@ export class CashTransactionService {
 
     const isWithdraw = storeRequest.type === EnumCashTransaction.WITHDRAW;
 
-    const result = await UserModel.transaction(async (trx) => {
-      const user = await UserModel.query(trx)
-        .findById(req.user.id)
-        .forUpdate()
-        .throwIfNotFound();
+    if (isWithdraw && Number(user.balance) < Number(cashTransaction.amount)) {
+      throw new ResponseError(
+        400,
+        'Saldo tidak mencukupi untuk melakukan penarikan'
+      );
+    }
 
+    const result = await UserModel.transaction(async (trx) => {
       const newBalance = isWithdraw
-        ? user.balance - cashTransaction.amount
-        : user.balance + cashTransaction.amount;
+        ? Number(user.balance) - Number(cashTransaction.amount)
+        : Number(user.balance) + Number(cashTransaction.amount);
 
       await user.$query(trx).patch({ balance: newBalance });
 
