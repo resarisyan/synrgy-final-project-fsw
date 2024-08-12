@@ -52,7 +52,7 @@ export class QrService {
       const debitTransaction = await MutationModel.query(trx).insert({
         id: uuidv4(),
         amount: transactionRequest.amount,
-        mutation_type: EnumMutationType.QR,
+        mutation_type: EnumMutationType.TRANSFER,
         description: transactionRequest.description,
         account_number: account.account_number,
         user_id: request.user.id,
@@ -64,7 +64,7 @@ export class QrService {
 
       await MutationModel.query(trx).insert({
         amount: transactionRequest.amount,
-        mutation_type: EnumMutationType.QR,
+        mutation_type: EnumMutationType.TRANSFER,
         description: transactionRequest.description,
         account_number: request.user.account_number,
         user_id: data.account_id,
