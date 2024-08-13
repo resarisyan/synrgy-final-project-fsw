@@ -63,6 +63,7 @@ export class QrService {
       });
 
       await MutationModel.query(trx).insert({
+        id: uuidv4(),
         amount: transactionRequest.amount,
         mutation_type: EnumMutationType.TRANSFER,
         description: transactionRequest.description,
