@@ -3,6 +3,7 @@ import { UserModel } from '../models/UserModel'; // Sesuaikan dengan model user 
 import { UserRequest } from '../dtos/request/user-request';
 import { ResponseError } from '../handlers/response-error';
 import { errorResponse } from '../dtos/response/error-response';
+import { checkPin } from '../helpers/checkPin';
 
 export const checkPinMiddleware = async (
   req: UserRequest,
@@ -22,7 +23,10 @@ export const checkPinMiddleware = async (
       return next(new ResponseError(401, 'User not found'));
     }
 
-    if (pin !== user.pin) {
+    const userPin = user.pin;
+
+    const pinValidation = await checkPin(userPin, pin);
+    if (!pinValidation) {
       return next(new ResponseError(401, 'Invalid PIN'));
     }
   } catch (err) {
