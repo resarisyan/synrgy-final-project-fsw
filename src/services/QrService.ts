@@ -71,7 +71,8 @@ export class QrService {
         user_id: data.account_id,
         full_name: request.user.full_name,
         transaction_purpose: EnumTransactionPurpose.OTHER,
-        transaction_type: EnumTransactionType.DEBIT
+        transaction_type: EnumTransactionType.DEBIT,
+        created_at: new Date(Date.now())
       });
 
       return debitTransaction;

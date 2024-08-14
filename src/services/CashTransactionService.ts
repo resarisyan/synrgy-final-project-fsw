@@ -40,7 +40,6 @@ export class CashTransactionService {
         );
       }
 
-      console.log('user', request.user);
       if (createRequest.amount > request.user.balance) {
         throw new ResponseError(400, 'Saldo tidak mencukupi');
       }
