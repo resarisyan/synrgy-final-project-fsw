@@ -62,12 +62,12 @@ export class CardlessController {
       const request = req.body as CashTransactionHistoryRequest;
       request.user = req.user!;
 
-      if (req.body.expiredAtStart) {
-        request.expiredAtStart = new Date(req.body.expiredAtStart);
+      if (req.body.dateStart) {
+        request.createdAtStart = new Date(req.body.dateStart);
       }
 
-      if (req.body.expiredAtEnd) {
-        request.expiredAtEnd = new Date(req.body.expiredAtEnd);
+      if (req.body.dateEnd) {
+        request.createdAtEnd = new Date(req.body.dateEnd);
       }
 
       const transaction =

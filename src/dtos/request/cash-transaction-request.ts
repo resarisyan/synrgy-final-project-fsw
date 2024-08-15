@@ -14,7 +14,7 @@ export type CashTransactionStoreRequest = {
 };
 
 export type CashTransactionHistoryRequest = {
-  expiredAtStart: Date;
-  expiredAtEnd: Date;
+  createdAtStart: Date;
+  createdAtEnd: Date;
   user: User;
 };

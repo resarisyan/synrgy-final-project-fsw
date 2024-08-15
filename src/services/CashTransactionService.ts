@@ -16,7 +16,9 @@ import {
 import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
 import {
   CashTransactionResponse,
-  toCashTransactionResponse
+  CashTransactionHistoryResponse,
+  toCashTransactionResponse,
+  toCashTransactionHistoryResponse
 } from '../dtos/response/cash-transaction-response';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -130,22 +132,22 @@ export class CashTransactionService {
 
   static async getAllTransactions(
     request: CashTransactionHistoryRequest
-  ): Promise<CashTransactionResponse[]> {
+  ): Promise<CashTransactionHistoryResponse[]> {
     const data = CashTransactionModel.query()
       .where('user_id', request.user.id)
       .where('is_success', true)
       .orderBy('created_at', 'desc');
 
-    if (request.expiredAtStart && request.expiredAtEnd) {
+    if (request.createdAtStart && request.createdAtEnd) {
       data.whereBetween('expired_at', [
-        request.expiredAtStart.toISOString(),
-        request.expiredAtEnd.toISOString()
+        request.createdAtStart.toISOString(),
+        request.createdAtEnd.toISOString()
       ]);
     }
     if ((await data).length === 0) {
       throw new ResponseError(404, 'Data tidak ditemukan');
     }
 
-    return (await data).map(toCashTransactionResponse);
+    return (await data).map(toCashTransactionHistoryResponse);
   }
 }
