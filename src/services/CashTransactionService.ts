@@ -138,11 +138,10 @@ export class CashTransactionService {
 
     if (request.expiredAtStart && request.expiredAtEnd) {
       data.whereBetween('expired_at', [
-        request.expiredAtStart.toDateString(),
-        request.expiredAtEnd.toDateString()
+        request.expiredAtStart.toISOString(),
+        request.expiredAtEnd.toISOString()
       ]);
     }
-
     if ((await data).length === 0) {
       throw new ResponseError(404, 'Data tidak ditemukan');
     }

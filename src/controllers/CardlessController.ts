@@ -63,15 +63,11 @@ export class CardlessController {
       request.user = req.user!;
 
       if (req.body.expiredAtStart) {
-        const start = new Date(req.body.expiredAtStart);
-        start.setUTCHours(0, 0, 0, 0);
-        request.expiredAtStart = start;
+        request.expiredAtStart = new Date(req.body.expiredAtStart);
       }
 
       if (req.body.expiredAtEnd) {
-        const end = new Date(req.body.expiredAtEnd);
-        end.setUTCHours(23, 59, 59, 999);
-        request.expiredAtEnd = end;
+        request.expiredAtEnd = new Date(req.body.expiredAtEnd);
       }
 
       const transaction =
