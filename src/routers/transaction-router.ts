@@ -29,3 +29,9 @@ transactionRouter.post(
   checkPinMiddleware,
   CardlessController.demoTopup
 );
+
+transactionRouter.get(
+  '/token-history',
+  checkPinMiddleware,
+  CardlessController.tokenHistory
+);

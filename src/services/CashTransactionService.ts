@@ -10,7 +10,8 @@ import { CashTransactionModel } from '../models/CashTransactionModel';
 import { CashTransactionValidation } from '../validators/cash-transaction-validation';
 import {
   CashTransactionCreateRequest,
-  CashTransactionStoreRequest
+  CashTransactionStoreRequest,
+  CashTransactionHistoryRequest
 } from '../dtos/request/cash-transaction-request';
 import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
 import {
@@ -125,5 +126,27 @@ export class CashTransactionService {
     });
 
     return toCashTransactionResponse(result);
+  }
+
+  static async getAllTransactions(
+    request: CashTransactionHistoryRequest
+  ): Promise<CashTransactionResponse[]> {
+    const data = CashTransactionModel.query()
+      .where('user_id', request.user.id)
+      .where('is_success', true)
+      .orderBy('created_at', 'desc');
+
+    if (request.expiredAtStart && request.expiredAtEnd) {
+      data.whereBetween('expired_at', [
+        request.expiredAtStart.toDateString(),
+        request.expiredAtEnd.toDateString()
+      ]);
+    }
+
+    if ((await data).length === 0) {
+      throw new ResponseError(404, 'Data tidak ditemukan');
+    }
+
+    return (await data).map(toCashTransactionResponse);
   }
 }

@@ -12,3 +12,9 @@ export type CashTransactionStoreRequest = {
   type: EnumCashTransaction;
   user: User;
 };
+
+export type CashTransactionHistoryRequest = {
+  expiredAtStart: Date;
+  expiredAtEnd: Date;
+  user: User;
+};

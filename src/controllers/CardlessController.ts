@@ -2,7 +2,8 @@ import { Response } from 'express';
 import { UserRequest } from '../dtos/request/user-request';
 import {
   CashTransactionCreateRequest,
-  CashTransactionStoreRequest
+  CashTransactionStoreRequest,
+  CashTransactionHistoryRequest
 } from '../dtos/request/cash-transaction-request';
 import { CashTransactionService } from '../services/CashTransactionService';
 import { EnumCashTransaction } from '../enums/cash-transaction-enum';
@@ -49,6 +50,35 @@ export class CardlessController {
       res.json({
         success: true,
         message: 'Topup Successfully',
+        data: transaction
+      });
+    } catch (error) {
+      errorResponse({ error: error as Error, res });
+    }
+  };
+
+  static tokenHistory = async (req: UserRequest, res: Response) => {
+    try {
+      const request = req.body as CashTransactionHistoryRequest;
+      request.user = req.user!;
+
+      if (req.body.expiredAtStart) {
+        const start = new Date(req.body.expiredAtStart);
+        start.setUTCHours(0, 0, 0, 0);
+        request.expiredAtStart = start;
+      }
+
+      if (req.body.expiredAtEnd) {
+        const end = new Date(req.body.expiredAtEnd);
+        end.setUTCHours(23, 59, 59, 999);
+        request.expiredAtEnd = end;
+      }
+
+      const transaction =
+        await CashTransactionService.getAllTransactions(request);
+      res.json({
+        success: true,
+        message: 'Cardless Transaction History Data Successfully Fetched',
         data: transaction
       });
     } catch (error) {
