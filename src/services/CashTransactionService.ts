@@ -139,7 +139,7 @@ export class CashTransactionService {
       .orderBy('created_at', 'desc');
 
     if (request.createdAtStart && request.createdAtEnd) {
-      data.whereBetween('expired_at', [
+      data.whereBetween('created_at', [
         request.createdAtStart.toISOString(),
         request.createdAtEnd.toISOString()
       ]);

@@ -59,15 +59,16 @@ export class CardlessController {
 
   static tokenHistory = async (req: UserRequest, res: Response) => {
     try {
+      const { startDate, endDate } = req.query;
       const request = req.body as CashTransactionHistoryRequest;
       request.user = req.user!;
 
-      if (req.body.dateStart) {
-        request.createdAtStart = new Date(req.body.dateStart);
+      if (startDate) {
+        request.createdAtStart = new Date(startDate as string);
       }
 
-      if (req.body.dateEnd) {
-        request.createdAtEnd = new Date(req.body.dateEnd);
+      if (endDate) {
+        request.createdAtEnd = new Date(endDate as string);
       }
 
       const transaction =
