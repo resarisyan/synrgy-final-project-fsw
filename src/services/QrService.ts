@@ -16,6 +16,7 @@ import { MutationModel } from '../models/MutattionModel';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
 import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
 import { UserModel } from '../models/UserModel';
+import { QrisModel } from '../models/QrisModel';
 import { v4 as uuidv4 } from 'uuid';
 dotenv.config();
 
@@ -84,6 +85,8 @@ export class QrService {
 
   static async generateQrCode(req: UserRequest): Promise<string> {
     const account = req.user!;
+
+    const userId = account.id;
 
     let qrType = '11';
     const qrisVersion = '01';
@@ -162,6 +165,16 @@ export class QrService {
 
     const qrisFinalPayload = qrDataPayload + checksumFormat;
     console.log('qrisFinalPayload:', qrisFinalPayload);
+
+    await QrisModel.query().insert({
+      id: uuidv4(),
+      transaction_id: uuidTD,
+      expired_at: new Date(Date.now() + 86400000),
+      payload: qrisFinalPayload,
+      type: 0,
+      used: false,
+      user_id: userId
+    });
 
     const qrCode = await QRCode.toDataURL(qrisFinalPayload);
     return qrCode;
