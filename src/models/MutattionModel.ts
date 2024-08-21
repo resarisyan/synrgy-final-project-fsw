@@ -2,6 +2,7 @@ import { Model, ModelObject } from 'objection';
 import { EnumMutationType } from '../enums/mutation-type-enum';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
 import { EnumTransactionPurpose } from '../enums/transaction-purpose-enum';
+import { UserModel } from './UserModel';
 
 export class MutationModel extends Model {
   static tableName = 'mutations';
@@ -17,6 +18,8 @@ export class MutationModel extends Model {
   transaction_type!: EnumTransactionType;
   created_at!: Date;
   updated_at!: Date;
+  user!: UserModel;
+  account!: UserModel;
 
   static relationMappings = {
     user: {
@@ -25,6 +28,14 @@ export class MutationModel extends Model {
       join: {
         from: 'mutations.user_id',
         to: 'users.id'
+      }
+    },
+    account: {
+      relation: Model.BelongsToOneRelation,
+      modelClass: 'UserModel',
+      join: {
+        from: 'mutations.account_number',
+        to: 'users.account_number'
       }
     }
   };

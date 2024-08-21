@@ -7,11 +7,14 @@ import cors from 'cors';
 import { apiRouter } from './routers';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../swagger.json';
+import path from 'path';
 
 Model.knex(knex(knexConfig));
 dotenv.config();
 const port = process.env.PORT || 9999;
 const app = express();
+const publicPath = path.join(__dirname, '..', 'public');
+app.use(express.static(publicPath));
 app.locals.baseURL = `${process.env.BASE_URL}:${port}`;
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true }));
