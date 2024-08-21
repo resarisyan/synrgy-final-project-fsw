@@ -106,6 +106,7 @@ export class QrService {
     const transactionId =
       transactionIdPrefix + uuidTD + accountNumber + accountNumberTag;
 
+    console.log('transactionId:', transactionId);
     let qrDataPayload = '';
 
     if (amount == 0) {
@@ -168,7 +169,7 @@ export class QrService {
 
     await QrisModel.query().insert({
       id: uuidv4(),
-      transaction_id: uuidTD,
+      transaction_id: transactionId,
       expired_at: new Date(Date.now() + 86400000),
       payload: qrisFinalPayload,
       type: 0,
