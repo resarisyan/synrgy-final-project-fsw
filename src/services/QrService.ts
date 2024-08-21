@@ -167,10 +167,12 @@ export class QrService {
     const qrisFinalPayload = qrDataPayload + checksumFormat;
     console.log('qrisFinalPayload:', qrisFinalPayload);
 
+    const extra7hours = 7 * 60 * 60 * 1000; // because of timezone difference between server and client??
+
     await QrisModel.query().insert({
       id: uuidv4(),
       transaction_id: transactionId,
-      expired_at: new Date(Date.now() + 86400000),
+      expired_at: new Date(Date.now() + 86400000 + extra7hours),
       payload: qrisFinalPayload,
       type: 0,
       used: false,
