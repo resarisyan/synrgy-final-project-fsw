@@ -28,7 +28,9 @@
   "paths": {
     "/api/v1/transactions/transfer-qr": {
       "post": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -66,8 +68,10 @@
       }
     },
     "/api/v1/transactions/generate-qr": {
-      "get": {
-        "tags": ["Transactions"],
+      "post": {
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -75,6 +79,16 @@
         ],
         "summary": "Generate QR",
         "description": "Generate QR",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/definitions/GenerateQRRequest"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Success"
@@ -96,7 +110,9 @@
     },
     "/api/v1/transactions/generate-token": {
       "post": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -135,7 +151,9 @@
     },
     "/api/v1/transactions/demo-withdraw": {
       "post": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -174,7 +192,9 @@
     },
     "/api/v1/transactions/demo-topup": {
       "post": {
-        "tags": ["Transactions"],
+        "tags": [
+          "Transactions"
+        ],
         "security": [
           {
             "bearerAuth": []
@@ -221,6 +241,14 @@
       }
     },
     "definitions": {
+      "GenerateQRRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          }
+        }
+      },
       "TransferQRRequest": {
         "type": "object",
         "properties": {
@@ -234,7 +262,11 @@
             "type": "string"
           }
         },
-        "required": ["amount", "description", "key"]
+        "required": [
+          "amount",
+          "description",
+          "key"
+        ]
       },
       "CashTransactionCreateRequest": {
         "type": "object",
@@ -244,10 +276,20 @@
           },
           "type": {
             "type": "string",
-            "enum": ["TOPUP", "WITHDRAW"]
+            "enum": [
+              "TOPUP",
+              "WITHDRAW"
+            ]
+          },
+          "pin": {
+            "type": "string"
           }
         },
-        "required": ["amount", "type"]
+        "required": [
+          "amount",
+          "type",
+          "pin"
+        ]
       },
       "CashTransactionStoreRequest": {
         "type": "object",
@@ -256,7 +298,9 @@
             "type": "string"
           }
         },
-        "required": ["token"]
+        "required": [
+          "token"
+        ]
       }
     }
   }
