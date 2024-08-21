@@ -1,5 +1,6 @@
 import { Model, ModelObject } from 'objection';
 import { EnumCashTransaction } from '../enums/cash-transaction-enum';
+import { UserModel } from './UserModel';
 
 export class CashTransactionModel extends Model {
   static tableName = 'cash_transactions';
@@ -16,7 +17,7 @@ export class CashTransactionModel extends Model {
   static relationMappings = {
     user: {
       relation: Model.BelongsToOneRelation,
-      modelClass: 'UserModel',
+      modelClass: UserModel,
       join: {
         from: 'cash_transactions.user_id',
         to: 'users.id'

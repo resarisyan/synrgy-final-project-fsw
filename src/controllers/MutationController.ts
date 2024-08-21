@@ -1,4 +1,4 @@
-import { PageRequest } from '../dtos/request/page-request';
+import { GetMutationRequest } from '../dtos/request/mutation-request';
 import { UserRequest } from '../dtos/request/user-request';
 import { errorResponse } from '../dtos/response/error-response';
 import { MutationService } from '../services/MutationService';
@@ -7,7 +7,8 @@ import { Response } from 'express';
 export class MutationController {
   static async getAll(req: UserRequest, res: Response) {
     try {
-      const request: PageRequest = req.params as unknown as PageRequest;
+      const request: GetMutationRequest =
+        req.query as unknown as GetMutationRequest;
       const mutations = await MutationService.getAll(request, req.user!);
       res.json({
         success: true,

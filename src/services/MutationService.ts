@@ -15,21 +15,27 @@ export class MutationService {
     user: User
   ): Promise<Page<MutationModel>> {
     const request = Validation.validate(MutationValidation.GetMutation, req);
+    console.log(user);
     const query = MutationModel.query()
       .withGraphFetched('[user, account]')
-      .where('user_id', user.id)
-      .orWhere('account_number', user.account_number)
+      .where(function () {
+        this.where('user_id', user.id).orWhere(
+          'account_number',
+          user.account_number
+        );
+      })
       .orderBy('created_at', 'desc');
 
     if (request.category) {
-      query.where('mutation_type', request.category);
+      query.where('transaction_type', request.category);
     }
 
     if (request.dateRange && request.dateRange.start && request.dateRange.end) {
-      query.whereBetween('created_at', [
-        request.dateRange.start,
-        request.dateRange.end
-      ]);
+      const startDate = new Date(request.dateRange.start).toISOString();
+      const endDate = new Date(request.dateRange.end).toISOString();
+      console.log(`Filtering between ${startDate} and ${endDate}`);
+
+      query.whereBetween('created_at', [startDate, endDate]);
     }
 
     const mutations = await query.page(request.page - 1, request.size);
@@ -51,7 +57,7 @@ export class MutationService {
     }
 
     if (
-      mutation?.user_id !== user.id ||
+      mutation?.user_id !== user.id &&
       mutation?.account_number !== user.account_number
     ) {
       throw new ResponseError(403, 'Forbidden');
@@ -92,8 +98,8 @@ export class MutationService {
           <!-- Header -->
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center;">
-              <img src="/images/logo.png" alt="Logo" style="width: 48px; height: 48px; margin-right: 8px;" />
-              <h6 style="margin: 0;">Rupi App</h6>
+              <img src="https://res.cloudinary.com/dpe64ddng/image/upload/v1724230750/hfohsrakgztfxwfyne20.png" alt="Logo" style="width: 48px; height: 48px;" />
+              <h2 style="margin: 0;">Rupi App</h2>
             </div>
           </div>
 
@@ -104,7 +110,7 @@ export class MutationService {
           <!-- Recipient Details -->
           <div style="margin-bottom: 16px;">
             <p style="margin: 0; font-weight: bold;">Penerima</p>
-            < style="margin: 0;">${mutation.recipientName}</p>
+            <p style="margin: 0;">${mutation.recipientName}</p>
             <p style="margin: 0; color: #6c757d;">Bank Central Asia - ${mutation.recipientAccountNumber}</p>
           </div>
           <hr style="margin: 16px 0;" />

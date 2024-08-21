@@ -1,4 +1,6 @@
 import { Model, ModelObject } from 'objection';
+import { MutationModel } from './MutattionModel';
+import { CashTransactionModel } from './CashTransactionModel';
 export class UserModel extends Model {
   static tableName = 'users';
   id!: string;
@@ -19,7 +21,7 @@ export class UserModel extends Model {
   static relationMappings = {
     mutations: {
       relation: Model.HasManyRelation,
-      modelClass: 'MutationModel',
+      modelClass: MutationModel,
       join: {
         from: 'users.id',
         to: 'mutations.user_id'
@@ -27,18 +29,10 @@ export class UserModel extends Model {
     },
     cash_transactions: {
       relation: Model.HasManyRelation,
-      modelClass: 'CashTransactionModel',
+      modelClass: CashTransactionModel,
       join: {
         from: 'users.id',
         to: 'cash_transactions.user_id'
-      }
-    },
-    otps: {
-      relation: Model.HasManyRelation,
-      modelClass: 'OtpModel',
-      join: {
-        from: 'users.id',
-        to: 'otps.user_id'
       }
     }
   };

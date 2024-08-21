@@ -24,7 +24,7 @@ export class MutationModel extends Model {
   static relationMappings = {
     user: {
       relation: Model.BelongsToOneRelation,
-      modelClass: 'UserModel',
+      modelClass: UserModel,
       join: {
         from: 'mutations.user_id',
         to: 'users.id'
@@ -32,7 +32,7 @@ export class MutationModel extends Model {
     },
     account: {
       relation: Model.BelongsToOneRelation,
-      modelClass: 'UserModel',
+      modelClass: UserModel,
       join: {
         from: 'mutations.account_number',
         to: 'users.account_number'
