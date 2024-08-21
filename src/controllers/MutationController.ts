@@ -7,7 +7,7 @@ import { Response } from 'express';
 export class MutationController {
   static async getAll(req: UserRequest, res: Response) {
     try {
-      const request: PageRequest = req.body as PageRequest;
+      const request: PageRequest = req.params as unknown as PageRequest;
       const mutations = await MutationService.getAll(request, req.user!);
       res.json({
         success: true,
