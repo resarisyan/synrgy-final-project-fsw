@@ -15,20 +15,22 @@ export const checkPinMiddleware = async (
     const pin = req.body.pin;
 
     if (!userId || !pin) {
-      return next(new ResponseError(400, 'User ID and PIN are required'));
+      throw new ResponseError(400, 'User ID and PIN are required');
     }
 
     const user = await UserModel.query().findById(userId);
     if (!user) {
-      return next(new ResponseError(401, 'User not found'));
+      throw new ResponseError(401, 'User not found');
     }
 
     const userPin = user.pin;
 
     const pinValidation = await checkPin(userPin, pin);
     if (!pinValidation) {
-      return next(new ResponseError(401, 'Invalid PIN'));
+      throw new ResponseError(401, 'Invalid PIN');
     }
+
+    next();
   } catch (err) {
     return errorResponse({ error: err as Error, res });
   }
