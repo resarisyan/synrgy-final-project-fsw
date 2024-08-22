@@ -38,5 +38,5 @@ export const authMiddleware = async (
     return errorResponse({ error: err as Error, res });
   }
 
-  next();
+  return next();
 };

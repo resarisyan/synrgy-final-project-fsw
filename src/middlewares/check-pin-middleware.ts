@@ -29,11 +29,9 @@ export const checkPinMiddleware = async (
     if (!pinValidation) {
       throw new ResponseError(401, 'Invalid PIN');
     }
-
-    next();
   } catch (err) {
     return errorResponse({ error: err as Error, res });
   }
 
-  next();
+  return next();
 };
