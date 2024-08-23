@@ -12,8 +12,7 @@ export const errorResponse = ({ error, res }: ErrorResponseParams) => {
   if (error instanceof ZodError) {
     res.status(400).json({
       success: false,
-      message: 'Validation error',
-      errors: error.errors
+      message: error.errors[0]?.message
     });
   } else if (error instanceof NotFoundError) {
     res.status(404).json({
