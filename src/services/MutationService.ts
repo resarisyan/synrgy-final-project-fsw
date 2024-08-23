@@ -30,6 +30,10 @@ export class MutationService {
       query.where('transaction_type', request.category);
     }
 
+    if (request.mutationType) {
+      query.where('mutation_type', request.mutationType);
+    }
+
     if (request.dateRange && request.dateRange.start && request.dateRange.end) {
       const startDate = new Date(request.dateRange.start).toISOString();
       const endDate = new Date(request.dateRange.end).toISOString();

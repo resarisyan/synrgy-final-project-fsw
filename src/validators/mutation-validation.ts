@@ -17,6 +17,7 @@ export class MutationValidation {
       return num;
     }),
     category: z.string().optional(),
+    mutationType: z.string().optional(),
     dateRange: z
       .object({
         start: z.string().refine((value) => !isNaN(Date.parse(value)), {
