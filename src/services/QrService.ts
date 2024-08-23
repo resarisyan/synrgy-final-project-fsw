@@ -1,5 +1,4 @@
 import { TransactionQrRequest } from '../dtos/request/transaction-request';
-import { UserRequest } from '../dtos/request/user-request';
 import { ResponseError } from '../handlers/response-error';
 import { decryptData } from '../helpers/encryption';
 import { generateChecksum } from '../helpers/generateChecksum';
@@ -83,7 +82,13 @@ export class QrService {
     return toTransactionResponse(result);
   }
 
-  static async generateQrCode(req: UserRequest): Promise<string> {
+  static async generateQrCode(
+    req: TransactionQrRequest
+  ): Promise<{ qrCode: string; expiredAt: Date }> {
+    const transactionRequest = Validation.validate(
+      TransactionValidation.QR,
+      req
+    );
     const account = req.user!;
 
     const userId = account.id;
@@ -97,7 +102,7 @@ export class QrService {
     const fullName = account.full_name;
     const merchantCity = 'Jakarta';
     const merchantPostalCode = '12345';
-    const amount = req.body.amount || 0;
+    const amount = transactionRequest.amount || 0;
 
     const transactionIdPrefix = '05400804DMCT';
     const uuidTD = uuidv4().replace(/-/g, '') + '0714';
@@ -167,10 +172,12 @@ export class QrService {
     const qrisFinalPayload = qrDataPayload + checksumFormat;
     console.log('qrisFinalPayload:', qrisFinalPayload);
 
+    const extra7hours = 7 * 60 * 60 * 1000; // because of timezone difference between server and client??
+
     await QrisModel.query().insert({
       id: uuidv4(),
       transaction_id: transactionId,
-      expired_at: new Date(Date.now() + 86400000),
+      expired_at: new Date(Date.now() + 86400000 + extra7hours),
       payload: qrisFinalPayload,
       type: 0,
       used: false,
@@ -178,6 +185,9 @@ export class QrService {
     });
 
     const qrCode = await QRCode.toDataURL(qrisFinalPayload);
-    return qrCode;
+    return {
+      qrCode,
+      expiredAt: new Date(Date.now() + 86400000 + extra7hours)
+    };
   }
 }

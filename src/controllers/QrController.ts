@@ -7,7 +7,9 @@ import { errorResponse } from '../dtos/response/error-response';
 export class QrController {
   static async generateQrCode(req: UserRequest, res: Response) {
     try {
-      const qrCode = await QrService.generateQrCode(req);
+      const request = req.body as TransactionQrRequest;
+      request.user = req.user!;
+      const qrCode = await QrService.generateQrCode(request);
       res.json({
         success: true,
         message: 'QR code generated successfully',
