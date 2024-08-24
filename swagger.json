@@ -92,7 +92,6 @@
         "summary": "Generate QR",
         "description": "Generate QR",
         "requestBody": {
-          "required": true,
           "content": {
             "application/json": {
               "schema": {

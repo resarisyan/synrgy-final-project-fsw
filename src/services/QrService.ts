@@ -105,7 +105,7 @@ export class QrService {
     console.log('transactionId:', transactionId);
     let qrDataPayload = '';
 
-    if (amount == 0) {
+    if (!amount) {
       qrType = '11'; // static qr
       qrDataPayload = [
         '00' + qrisVersion.length.toString().padStart(2, '0') + qrisVersion,

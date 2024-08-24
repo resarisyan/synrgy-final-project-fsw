@@ -1,14 +1,13 @@
 import { Response } from 'express';
 import { UserRequest } from '../dtos/request/user-request';
 import { QrService } from '../services/QrService';
-import { TransactionQrRequest } from '../dtos/request/transaction-request';
 import { errorResponse } from '../dtos/response/error-response';
 import { GetQrRequest } from '../dtos/request/qr-request';
 
 export class QrController {
   static async generateQrCode(req: UserRequest, res: Response) {
     try {
-      const request = req.body as TransactionQrRequest;
+      const request = req.body || {};
       request.user = req.user!;
       const qrCode = await QrService.generateQrCode(request);
       res.json({
