@@ -186,14 +186,13 @@ export class QrService {
     req: GetQrRequest,
     userId: string
   ): Promise<Page<QrisModel>> {
+    const request = Validation.validate(TransactionValidation.GET_QR, req);
     const qris = await QrisModel.query()
       .where('user_id', userId)
-      .andWhere('used', req.used || false)
+      .andWhere('used', request.used || false)
       .andWhere('expired_at', '>', new Date(Date.now()))
       .orderBy('expired_at', 'desc')
-      .page(req.page, req.size);
-
-    console.log('qris:', qris);
+      .page(request.page, request.size);
 
     return qris;
   }

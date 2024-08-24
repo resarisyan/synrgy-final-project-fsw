@@ -23,7 +23,7 @@ export class QrController {
 
   static async getAllQr(req: UserRequest, res: Response) {
     try {
-      const request = req.body as GetQrRequest;
+      const request = req.query as unknown as GetQrRequest;
       const userId = req.user!.id;
       const qrCodes = await QrService.getAllQrCode(request, userId);
       res.json({
