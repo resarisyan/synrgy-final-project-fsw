@@ -8,3 +8,10 @@ export type GetMutationRequest = {
     end: string;
   };
 };
+
+export type EstatementRequest = {
+  dateRange: {
+    start: string;
+    end: string;
+  };
+};

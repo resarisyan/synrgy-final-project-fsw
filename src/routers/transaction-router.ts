@@ -6,8 +6,11 @@ import { CardlessController } from '../controllers/CardlessController';
 import { checkPhoneMiddleware } from '../middlewares/check-phone-middleware';
 export const transactionRouter = express.Router();
 
-transactionRouter.use(authMiddleware);
-transactionRouter.post('/generate-qr', QrController.generateQrCode);
+transactionRouter.post(
+  '/generate-qr',
+  authMiddleware,
+  QrController.generateQrCode
+);
 // transactionRouter.post(
 //   '/transfer-qr',
 //   checkPinMiddleware,
@@ -16,6 +19,7 @@ transactionRouter.post('/generate-qr', QrController.generateQrCode);
 
 transactionRouter.post(
   '/generate-token',
+  authMiddleware,
   checkPinMiddleware,
   CardlessController.tokenGenerate
 );
@@ -31,4 +35,8 @@ transactionRouter.post(
   CardlessController.demoTopup
 );
 
-transactionRouter.get('/token-history', CardlessController.tokenHistory);
+transactionRouter.get(
+  '/token-history',
+  authMiddleware,
+  CardlessController.tokenHistory
+);

@@ -1,7 +1,7 @@
 import { EnumMutationType } from '../../enums/mutation-type-enum';
 import { EnumTransactionPurpose } from '../../enums/transaction-purpose-enum';
 import { EnumTransactionType } from '../../enums/transaction-type-enum';
-import { MutationModel } from '../../models/MutattionModel';
+import { MutationModel } from '../../models/MutationModel';
 
 export type TransactionResponse = {
   amount: number;

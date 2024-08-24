@@ -58,4 +58,53 @@ export class MutationValidation {
         }
       )
   });
+
+  static Estatement: ZodType = z.object({
+    dateRange: z
+      .object({
+        start: z.string().nonempty({ message: 'Start date is required' }),
+        end: z.string().nonempty({ message: 'End date is required' })
+      })
+      .superRefine((data, ctx) => {
+        const { start, end } = data;
+
+        // Convert to Date objects
+        const startDate = new Date(start);
+        const endDate = new Date(end);
+        const today = new Date();
+        const threeYearsAgo = new Date();
+        threeYearsAgo.setFullYear(today.getFullYear() - 3);
+
+        // Validate start date
+        if (startDate < threeYearsAgo) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Start date cannot be more than 3 years ago',
+            path: ['dateRange', 'start']
+          });
+        }
+
+        // Validate end date
+        if (endDate > today) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'End date cannot be in the future',
+            path: ['dateRange', 'end']
+          });
+        }
+
+        // Validate the range is within 7 months
+        const diffMonths =
+          (endDate.getFullYear() - startDate.getFullYear()) * 12 +
+          endDate.getMonth() -
+          startDate.getMonth();
+        if (diffMonths > 7) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'End date cannot be more than 7 months from start date',
+            path: ['dateRange', 'end']
+          });
+        }
+      })
+  });
 }

@@ -6,6 +6,8 @@ import { UserModel } from './UserModel';
 
 export class MutationModel extends Model {
   static tableName = 'mutations';
+
+  // Define your fields here
   id!: string;
   user_id!: string;
   amount!: number;
@@ -21,7 +23,7 @@ export class MutationModel extends Model {
   user!: UserModel;
   account!: UserModel;
 
-  static relationMappings = {
+  static relationMappings = () => ({
     user: {
       relation: Model.BelongsToOneRelation,
       modelClass: UserModel,
@@ -38,7 +40,7 @@ export class MutationModel extends Model {
         to: 'users.account_number'
       }
     }
-  };
+  });
 }
 
-export type User = ModelObject<MutationModel>;
+export type Mutation = ModelObject<MutationModel>;

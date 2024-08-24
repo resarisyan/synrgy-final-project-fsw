@@ -1,6 +1,6 @@
 import { Model, ModelObject } from 'objection';
-import { MutationModel } from './MutattionModel';
 import { CashTransactionModel } from './CashTransactionModel';
+import { MutationModel } from './MutationModel';
 export class UserModel extends Model {
   static tableName = 'users';
   id!: string;

@@ -1,7 +1,6 @@
 import { EnumMutationType } from '../enums/mutation-type-enum';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
 import { ResponseError } from '../handlers/response-error';
-import { MutationModel } from '../models/MutattionModel';
 import { UserModel } from '../models/UserModel';
 import { Validation } from '../validators';
 import { randomTokenGenerate } from '../helpers/randomTokenGenerate';
@@ -21,6 +20,7 @@ import {
   toCashTransactionHistoryResponse
 } from '../dtos/response/cash-transaction-response';
 import { v4 as uuidv4 } from 'uuid';
+import { MutationModel } from '../models/MutationModel';
 
 export class CashTransactionService {
   static async create(
@@ -82,7 +82,9 @@ export class CashTransactionService {
       .first()
       .throwIfNotFound();
 
-    if (cashTransaction.is_success) {
+    if (cashTransaction.type !== storeRequest.type) {
+      throw new ResponseError(400, 'Token type is not match');
+    } else if (cashTransaction.is_success) {
       throw new ResponseError(400, 'Token has already been taken');
     } else if (cashTransaction.expired_at <= new Date(Date.now())) {
       throw new ResponseError(400, 'Token has already expired');

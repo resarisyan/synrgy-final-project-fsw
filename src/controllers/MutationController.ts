@@ -1,4 +1,7 @@
-import { GetMutationRequest } from '../dtos/request/mutation-request';
+import {
+  EstatementRequest,
+  GetMutationRequest
+} from '../dtos/request/mutation-request';
 import { UserRequest } from '../dtos/request/user-request';
 import { errorResponse } from '../dtos/response/error-response';
 import { MutationService } from '../services/MutationService';
@@ -39,6 +42,21 @@ export class MutationController {
       const id = req.params.id;
       const mutation = await MutationService.getOne(id, req.user!);
       const pdf = await MutationService.generatePdf(mutation);
+      res.json({
+        success: true,
+        message: 'PDF generated successfully',
+        data: pdf
+      });
+    } catch (error) {
+      errorResponse({ error: error as Error, res });
+    }
+  }
+
+  static async generateEstatement(req: UserRequest, res: Response) {
+    try {
+      const request: EstatementRequest =
+        req.query as unknown as EstatementRequest;
+      const pdf = await MutationService.generateEStatement(request, req.user!);
       res.json({
         success: true,
         message: 'PDF generated successfully',
