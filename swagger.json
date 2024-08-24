@@ -26,52 +26,9 @@
     }
   ],
   "paths": {
-    "/api/v1/transactions/transfer-qr": {
-      "post": {
-        "tags": [
-          "Transactions"
-        ],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "summary": "Transfer QR",
-        "description": "Transfer QR",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/definitions/TransferQRRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Success"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
     "/api/v1/transactions/generate-qr": {
       "post": {
-        "tags": [
-          "Transactions"
-        ],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -110,9 +67,7 @@
     },
     "/api/v1/transactions/generate-token": {
       "post": {
-        "tags": [
-          "Transactions"
-        ],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -151,9 +106,7 @@
     },
     "/api/v1/transactions/demo-withdraw": {
       "post": {
-        "tags": [
-          "Transactions"
-        ],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -192,9 +145,7 @@
     },
     "/api/v1/transactions/demo-topup": {
       "post": {
-        "tags": [
-          "Transactions"
-        ],
+        "tags": ["Transactions"],
         "security": [
           {
             "bearerAuth": []
@@ -398,25 +349,6 @@
           }
         }
       },
-      "TransferQRRequest": {
-        "type": "object",
-        "properties": {
-          "amount": {
-            "type": "number"
-          },
-          "description": {
-            "type": "string"
-          },
-          "key": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "amount",
-          "description",
-          "key"
-        ]
-      },
       "CashTransactionCreateRequest": {
         "type": "object",
         "properties": {
@@ -425,31 +357,25 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "TOPUP",
-              "WITHDRAW"
-            ]
+            "enum": ["TOPUP", "WITHDRAW"]
           },
           "pin": {
             "type": "string"
           }
         },
-        "required": [
-          "amount",
-          "type",
-          "pin"
-        ]
+        "required": ["amount", "type", "pin"]
       },
       "CashTransactionStoreRequest": {
         "type": "object",
         "properties": {
           "token": {
             "type": "string"
+          },
+          "phone": {
+            "type": "string"
           }
         },
-        "required": [
-          "token"
-        ]
+        "required": ["token"]
       }
     }
   }

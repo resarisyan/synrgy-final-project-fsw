@@ -39,7 +39,7 @@ export class CashTransactionService {
       if (createRequest.amount < 50000 || createRequest.amount % 50000 !== 0) {
         throw new ResponseError(
           400,
-          'Nominal harus kelipatan 50.000 dan minimal 50.000'
+          'Withdraw amount must be a multiple of 50000'
         );
       }
 
@@ -83,18 +83,15 @@ export class CashTransactionService {
       .throwIfNotFound();
 
     if (cashTransaction.is_success) {
-      throw new ResponseError(500, 'Token sudah digunakan');
+      throw new ResponseError(400, 'Token has already been taken');
     } else if (cashTransaction.expired_at <= new Date(Date.now())) {
-      throw new ResponseError(500, 'Token telah expired');
+      throw new ResponseError(400, 'Token has already expired');
     }
 
     const isWithdraw = storeRequest.type === EnumCashTransaction.WITHDRAW;
 
     if (isWithdraw && Number(user.balance) < Number(cashTransaction.amount)) {
-      throw new ResponseError(
-        400,
-        'Saldo tidak mencukupi untuk melakukan penarikan'
-      );
+      throw new ResponseError(400, 'Balance is not enough to withdraw');
     }
 
     const result = await UserModel.transaction(async (trx) => {
@@ -145,7 +142,7 @@ export class CashTransactionService {
       ]);
     }
     if ((await data).length === 0) {
-      throw new ResponseError(404, 'Data tidak ditemukan');
+      throw new ResponseError(404, 'Data not found');
     }
 
     return (await data).map(toCashTransactionHistoryResponse);
