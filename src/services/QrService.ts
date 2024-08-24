@@ -6,6 +6,8 @@ import QRCode from 'qrcode';
 import dotenv from 'dotenv';
 import { QrisModel } from '../models/QrisModel';
 import { v4 as uuidv4 } from 'uuid';
+import { Page } from 'objection';
+import { GetQrRequest } from '../dtos/request/qr-request';
 dotenv.config();
 
 export class QrService {
@@ -178,5 +180,21 @@ export class QrService {
       qrCode,
       expiredAt: new Date(Date.now() + 86400000 + extra7hours)
     };
+  }
+
+  static async getAllQrCode(
+    req: GetQrRequest,
+    userId: string
+  ): Promise<Page<QrisModel>> {
+    const qris = await QrisModel.query()
+      .where('user_id', userId)
+      .andWhere('used', req.used || false)
+      .andWhere('expired_at', '>', new Date(Date.now()))
+      .orderBy('expired_at', 'desc')
+      .page(req.page, req.size);
+
+    console.log('qris:', qris);
+
+    return qris;
   }
 }

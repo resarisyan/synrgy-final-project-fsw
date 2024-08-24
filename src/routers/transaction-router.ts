@@ -6,6 +6,7 @@ import { CardlessController } from '../controllers/CardlessController';
 import { checkPhoneMiddleware } from '../middlewares/check-phone-middleware';
 export const transactionRouter = express.Router();
 
+transactionRouter.get('/qr', authMiddleware, QrController.getAllQr);
 transactionRouter.post(
   '/generate-qr',
   authMiddleware,

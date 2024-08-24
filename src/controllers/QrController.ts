@@ -3,6 +3,7 @@ import { UserRequest } from '../dtos/request/user-request';
 import { QrService } from '../services/QrService';
 import { TransactionQrRequest } from '../dtos/request/transaction-request';
 import { errorResponse } from '../dtos/response/error-response';
+import { GetQrRequest } from '../dtos/request/qr-request';
 
 export class QrController {
   static async generateQrCode(req: UserRequest, res: Response) {
@@ -14,6 +15,21 @@ export class QrController {
         success: true,
         message: 'QR code generated successfully',
         data: qrCode
+      });
+    } catch (error) {
+      errorResponse({ error: error as Error, res });
+    }
+  }
+
+  static async getAllQr(req: UserRequest, res: Response) {
+    try {
+      const request = req.body as GetQrRequest;
+      const userId = req.user!.id;
+      const qrCodes = await QrService.getAllQrCode(request, userId);
+      res.json({
+        success: true,
+        message: 'Data found',
+        data: qrCodes
       });
     } catch (error) {
       errorResponse({ error: error as Error, res });
