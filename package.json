@@ -4,8 +4,8 @@
   "description": "Final Project FSW BE Binar X Synrgy Academy",
   "main": "app.js",
   "scripts": {
-    "start": "node src/app.ts",
-    "build": "rimraf dist && tsc",
+    "build": "npx tsc",
+    "start": "node dist/src/app.js",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add dist",
     "dev": "nodemon"
