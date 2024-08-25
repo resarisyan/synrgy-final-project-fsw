@@ -5,15 +5,7 @@ export async function convertHTMLToPDF(
   pdfFilePath: string,
   margins = { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' }
 ) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage'
-    ],
-    executablePath: '/usr/bin/chromium-browser'
-  });
+  const browser = await puppeteer.launch({});
 
   const page = await browser.newPage();
   await page.setContent(htmlContent);
