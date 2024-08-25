@@ -1,24 +1,34 @@
 import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
-import fs from 'fs';
+import puppeteerCore from 'puppeteer-core';
+
 export async function convertHTMLToPDF(
   htmlContent: string,
   pdfFilePath: string,
   margins = { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' }
 ) {
-  const executablePath = await chromium.executablePath();
-  if (!fs.existsSync(executablePath)) {
-    throw new Error(`Chromium executable not found at path: ${executablePath}`);
+  let browser;
+  if (process.env.NODE_ENV === 'development') {
+    browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless: true
+    });
+  } else {
+    browser = await puppeteerCore.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless
+    });
   }
-  const browser = await puppeteer.launch({
-    ignoreDefaultArgs: ['--disable-extensions'],
-    defaultViewport: chromium.defaultViewport,
-    executablePath: executablePath,
-    headless: chromium.headless
-  });
 
   const page = await browser.newPage();
-  await page.setContent(htmlContent);
-  await page.pdf({ path: pdfFilePath, format: 'A4', margin: margins });
+  await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+  const pdfBuffer = await page.pdf({
+    path: pdfFilePath,
+    format: 'A4',
+    margin: margins
+  });
   await browser.close();
+  return pdfBuffer;
 }

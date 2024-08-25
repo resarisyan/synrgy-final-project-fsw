@@ -44,7 +44,7 @@ class MutationController {
             await MutationService_1.MutationService.generatePdf(mutation, pdfFilePath);
             res.setHeader('Content-Disposition', `attachment; filename="${pdfFilePath}"`);
             res.setHeader('Content-Type', 'application/pdf');
-            res.sendFile(pdfFilePath, { root: process.cwd() }, (err) => {
+            res.download(pdfFilePath, (err) => {
                 if (err) {
                     console.error('Error sending the file:', err);
                     (0, error_response_1.errorResponse)({ error: err, res });
@@ -69,7 +69,7 @@ class MutationController {
             await MutationService_1.MutationService.generateEStatement(request, req.user, pdfFilePath);
             res.setHeader('Content-Disposition', `attachment; filename="${pdfFilePath}"`);
             res.setHeader('Content-Type', 'application/pdf');
-            res.sendFile(pdfFilePath, { root: process.cwd() }, (err) => {
+            res.download(pdfFilePath, (err) => {
                 if (err) {
                     (0, error_response_1.errorResponse)({ error: err, res });
                 }

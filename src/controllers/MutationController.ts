@@ -44,6 +44,7 @@ export class MutationController {
       const mutation = await MutationService.getOne(id, req.user!);
 
       const pdfFilePath = `mutation.pdf`;
+
       await MutationService.generatePdf(mutation, pdfFilePath);
 
       res.setHeader(
@@ -52,7 +53,7 @@ export class MutationController {
       );
       res.setHeader('Content-Type', 'application/pdf');
 
-      res.sendFile(pdfFilePath, { root: process.cwd() }, (err) => {
+      res.download(pdfFilePath, (err) => {
         if (err) {
           console.error('Error sending the file:', err);
           errorResponse({ error: err, res });
@@ -80,7 +81,7 @@ export class MutationController {
         `attachment; filename="${pdfFilePath}"`
       );
       res.setHeader('Content-Type', 'application/pdf');
-      res.sendFile(pdfFilePath, { root: process.cwd() }, (err) => {
+      res.download(pdfFilePath, (err) => {
         if (err) {
           errorResponse({ error: err, res });
         } else {
