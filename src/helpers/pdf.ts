@@ -11,6 +11,7 @@ export async function convertHTMLToPDF(
     throw new Error(`Chromium executable not found at path: ${executablePath}`);
   }
   const browser = await puppeteer.launch({
+    ignoreDefaultArgs: ['--disable-extensions'],
     defaultViewport: chromium.defaultViewport,
     executablePath: executablePath,
     headless: chromium.headless
