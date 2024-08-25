@@ -54,11 +54,11 @@
             }
           },
           {
-            "name": "status",
+            "name": "used",
             "in": "query",
             "required": false,
             "schema": {
-              "type": "string"
+              "type": "boolean"
             }
           }
         ],
