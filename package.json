@@ -4,10 +4,17 @@
   "description": "Final Project FSW BE Binar X Synrgy Academy",
   "main": "app.js",
   "scripts": {
-    "build": "npx tsc",
-    "start": "node dist/src/app.js",
+    "start": "nodemon src/app.ts",
+    "build": "rimraf dist && tsc",
+    "ts.check": "tsc --project tsconfig.json",
+    "add-build": "git add dist",
     "dev": "nodemon"
   },
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+  ],
   "author": "Binar X Synrgy Academy",
   "license": "ISC",
   "dependencies": {
