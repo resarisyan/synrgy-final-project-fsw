@@ -99,7 +99,7 @@ export class MutationService {
     };
   }
 
-  static async generatePdf(mutation: MutationResponse): Promise<void> {
+  static async generatePdf(mutation: MutationResponse, pdfFilePath: string) {
     const html = `
      <div style="padding: 24px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
         <div style="position: relative;">
@@ -156,11 +156,12 @@ export class MutationService {
           </div>
           </div>`;
 
-    await convertHTMLToPDF(html, 'mutation.pdf');
+    await convertHTMLToPDF(html, pdfFilePath);
   }
   static async generateEStatement(
     req: EstatementRequest,
-    user: User
+    user: User,
+    pdfFilePath: string
   ): Promise<void> {
     const request = Validation.validate(MutationValidation.Estatement, req);
     const startDate = new Date(request.dateRange.start);
@@ -266,6 +267,6 @@ export class MutationService {
     html += `</div>`;
 
     // Convert HTML to PDF
-    await convertHTMLToPDF(html, 'e-statement.pdf');
+    await convertHTMLToPDF(html, pdfFilePath);
   }
 }

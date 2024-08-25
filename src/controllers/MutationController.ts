@@ -6,6 +6,7 @@ import { UserRequest } from '../dtos/request/user-request';
 import { errorResponse } from '../dtos/response/error-response';
 import { MutationService } from '../services/MutationService';
 import { Response } from 'express';
+import fs from 'fs';
 
 export class MutationController {
   static async getAll(req: UserRequest, res: Response) {
@@ -41,11 +42,27 @@ export class MutationController {
     try {
       const id = req.params.id;
       const mutation = await MutationService.getOne(id, req.user!);
-      const pdf = await MutationService.generatePdf(mutation);
-      res.json({
-        success: true,
-        message: 'PDF generated successfully',
-        data: pdf
+
+      const pdfFilePath = `mutation.pdf`;
+      await MutationService.generatePdf(mutation, pdfFilePath);
+
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${pdfFilePath}"`
+      );
+      res.setHeader('Content-Type', 'application/pdf');
+
+      res.sendFile(pdfFilePath, { root: process.cwd() }, (err) => {
+        if (err) {
+          console.error('Error sending the file:', err);
+          errorResponse({ error: err, res });
+        } else {
+          fs.unlink(pdfFilePath, (unlinkErr) => {
+            if (unlinkErr) {
+              errorResponse({ error: unlinkErr, res });
+            }
+          });
+        }
       });
     } catch (error) {
       errorResponse({ error: error as Error, res });
@@ -56,11 +73,23 @@ export class MutationController {
     try {
       const request: EstatementRequest =
         req.query as unknown as EstatementRequest;
-      const pdf = await MutationService.generateEStatement(request, req.user!);
-      res.json({
-        success: true,
-        message: 'PDF generated successfully',
-        data: pdf
+      const pdfFilePath = `e-statement-${req.user?.full_name}-${new Date().toISOString()}.pdf`;
+      await MutationService.generateEStatement(request, req.user!, pdfFilePath);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${pdfFilePath}"`
+      );
+      res.setHeader('Content-Type', 'application/pdf');
+      res.sendFile(pdfFilePath, { root: process.cwd() }, (err) => {
+        if (err) {
+          errorResponse({ error: err, res });
+        } else {
+          fs.unlink(pdfFilePath, (unlinkErr) => {
+            if (unlinkErr) {
+              errorResponse({ error: unlinkErr, res });
+            }
+          });
+        }
       });
     } catch (error) {
       errorResponse({ error: error as Error, res });

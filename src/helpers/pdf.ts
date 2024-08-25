@@ -13,7 +13,5 @@ export async function convertHTMLToPDF(
   const page = await browser.newPage();
   await page.setContent(htmlContent);
   await page.pdf({ path: pdfFilePath, format: 'A4', margin: margins });
-  const open = await import('open');
-  await open.default(pdfFilePath);
   await browser.close();
 }
