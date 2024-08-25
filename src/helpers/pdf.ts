@@ -11,8 +11,7 @@ export async function convertHTMLToPDF(
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage'
-    ],
-    executablePath: '/usr/bin/chromium-browser'
+    ]
   });
 
   const page = await browser.newPage();
