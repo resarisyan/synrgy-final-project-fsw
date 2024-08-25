@@ -35,6 +35,10 @@ export class CashTransactionService {
       request
     );
 
+    if (createRequest.type === EnumCashTransaction.TOPUP) {
+      createRequest.amount = 0;
+    }
+
     if (createRequest.type === EnumCashTransaction.WITHDRAW) {
       if (createRequest.amount < 50000 || createRequest.amount % 50000 !== 0) {
         throw new ResponseError(
@@ -98,21 +102,38 @@ export class CashTransactionService {
     }
 
     const isWithdraw = storeRequest.type === EnumCashTransaction.WITHDRAW;
+    const isTopup = storeRequest.type === EnumCashTransaction.TOPUP;
 
     if (isWithdraw && Number(user.balance) < Number(cashTransaction.amount)) {
       throw new ResponseError(400, 'Balance is not enough to withdraw');
     }
 
     const result = await UserModel.transaction(async (trx) => {
+      let transactionAmount = cashTransaction.amount;
+
+      if (isTopup) {
+        if (storeRequest.amount < 50000 || storeRequest.amount % 50000 !== 0) {
+          throw new ResponseError(
+            400,
+            'Topup amount must be a multiple of 50000'
+          );
+        } else {
+          await cashTransaction.$query(trx).patch({
+            amount: storeRequest.amount
+          });
+          transactionAmount = storeRequest.amount;
+        }
+      }
+
       const newBalance = isWithdraw
-        ? Number(user.balance) - Number(cashTransaction.amount)
-        : Number(user.balance) + Number(cashTransaction.amount);
+        ? Number(user.balance) - Number(transactionAmount)
+        : Number(user.balance) + Number(transactionAmount);
 
       await user.$query(trx).patch({ balance: newBalance });
 
       await MutationModel.query(trx).insert({
         id: uuidv4(),
-        amount: cashTransaction.amount,
+        amount: transactionAmount,
         mutation_type: EnumMutationType.TRANSFER,
         description: isWithdraw ? 'Withdraw' : 'Topup',
         account_number: user.account_number,
