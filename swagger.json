@@ -168,7 +168,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/definitions/CashTransactionStoreRequest"
+                "$ref": "#/components/definitions/CashTransactionWithdrawStoreRequest"
               }
             }
           }
@@ -202,7 +202,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/definitions/CashTransactionStoreRequest"
+                "$ref": "#/components/definitions/CashTransactionTopUpStoreRequest"
               }
             }
           }
@@ -409,7 +409,7 @@
         },
         "required": ["amount", "type", "pin"]
       },
-      "CashTransactionStoreRequest": {
+      "CashTransactionWithdrawStoreRequest": {
         "type": "object",
         "properties": {
           "token": {
@@ -420,6 +420,23 @@
           }
         },
         "required": ["token"]
+      },
+      "CashTransactionTopUpStoreRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "token": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ]
       }
     }
   }
