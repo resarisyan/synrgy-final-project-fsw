@@ -18,6 +18,7 @@
   "author": "Binar X Synrgy Academy",
   "license": "ISC",
   "dependencies": {
+    "@sparticuz/chromium": "^109.0.5",
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "bignumber.js": "^9.1.2",
