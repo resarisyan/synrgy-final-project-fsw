@@ -112,10 +112,17 @@ export class CashTransactionService {
       let transactionAmount = cashTransaction.amount;
 
       if (isTopup) {
-        await cashTransaction.$query(trx).patch({
-          amount: storeRequest.amount
-        });
-        transactionAmount = storeRequest.amount;
+        if (storeRequest.amount < 50000 || storeRequest.amount % 50000 !== 0) {
+          throw new ResponseError(
+            400,
+            'Topup amount must be a multiple of 50000'
+          );
+        } else {
+          await cashTransaction.$query(trx).patch({
+            amount: storeRequest.amount
+          });
+          transactionAmount = storeRequest.amount;
+        }
       }
 
       const newBalance = isWithdraw
