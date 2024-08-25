@@ -1,17 +1,11 @@
 FROM node:18
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
-
-# Install dependencies
-RUN npm install
-
-# Install necessary dependencies for Puppeteer
+# Install Puppeteer dependencies
 RUN apt-get update && apt-get install -y \
     wget \
+    gnupg \
     ca-certificates \
     fonts-liberation \
     libappindicator3-1 \
@@ -19,21 +13,32 @@ RUN apt-get update && apt-get install -y \
     libatk-bridge2.0-0 \
     libatk1.0-0 \
     libcups2 \
-    libdrm2 \
-    libgbm1 \
+    libgdk-pixbuf2.0-0 \
     libnspr4 \
     libnss3 \
+    libx11-xcb1 \
     libxcomposite1 \
     libxdamage1 \
     libxrandr2 \
     libxss1 \
+    libxtst6 \
+    lsb-release \
     xdg-utils \
-    && rm -rf /var/lib/apt/lists/*
+    --no-install-recommends
 
-# Copy all files to the working directory
+# Install Puppeteer and its dependencies
+RUN npm install -g puppeteer
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install app dependencies
+RUN npm install
+
+# Copy app source code
 COPY . .
 
-# Expose port 8000
+# Expose application port
 EXPOSE 8000
 
 # Run the application
