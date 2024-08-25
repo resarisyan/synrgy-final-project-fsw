@@ -161,11 +161,6 @@
     "/api/v1/transactions/demo-withdraw": {
       "post": {
         "tags": ["Transactions"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "summary": "Demo Withdraw",
         "description": "Demo Withdraw",
         "requestBody": {
@@ -200,11 +195,6 @@
     "/api/v1/transactions/demo-topup": {
       "post": {
         "tags": ["Transactions"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "summary": "Demo Topup",
         "description": "Demo Topup",
         "requestBody": {

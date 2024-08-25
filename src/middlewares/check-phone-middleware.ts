@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { UserModel } from '../models/UserModel'; // Sesuaikan dengan model user yang Anda gunakan
+import { CashTransactionModel } from '../models/CashTransactionModel';
 import { UserRequest } from '../dtos/request/user-request';
 import { ResponseError } from '../handlers/response-error';
 import { errorResponse } from '../dtos/response/error-response';
@@ -12,11 +13,18 @@ export const checkPhoneMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user!.id;
+    const reqToken = req.body || {};
+    const token = reqToken.token;
+    const userId = await CashTransactionModel.query()
+      .findOne({ code: token })
+      .select('user_id');
+
+    const userID = JSON.parse(JSON.stringify(userId)).user_id;
+
     const request = Validation.validate(GeneralValidation.PHONE, req.body);
     const phone = request.phone;
 
-    const user = await UserModel.query().findById(userId);
+    const user = await UserModel.query().findById(userID);
     if (!user) {
       throw new ResponseError(401, 'User not found');
     }

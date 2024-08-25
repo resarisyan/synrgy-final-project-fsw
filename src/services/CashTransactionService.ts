@@ -70,13 +70,20 @@ export class CashTransactionService {
       req
     );
 
+    const token = req.token;
+    const userId = await CashTransactionModel.query()
+      .findOne({ code: token })
+      .select('user_id');
+
+    const userID = JSON.parse(JSON.stringify(userId)).user_id;
+
     const user = await UserModel.query()
-      .findById(req.user.id)
+      .findById(userID)
       .forUpdate()
       .throwIfNotFound();
     const cashTransaction = await CashTransactionModel.query()
       .where({
-        user_id: req.user.id,
+        user_id: userID,
         code: storeRequest.token
       })
       .first()
