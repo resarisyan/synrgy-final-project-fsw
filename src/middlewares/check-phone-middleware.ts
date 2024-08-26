@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { UserModel } from '../models/UserModel'; // Sesuaikan dengan model user yang Anda gunakan
+import { UserModel } from '../models/UserModel';
 import { UserRequest } from '../dtos/request/user-request';
 import { ResponseError } from '../handlers/response-error';
 import { errorResponse } from '../dtos/response/error-response';
@@ -12,16 +12,13 @@ export const checkPhoneMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    const userId = req.user!.id;
     const request = Validation.validate(GeneralValidation.PHONE, req.body);
     const phone = request.phone;
 
-    const user = await UserModel.query().findById(userId);
-    if (!user) {
-      throw new ResponseError(401, 'User not found');
-    }
+    const user = await UserModel.query().where('phone', phone).first();
+    req.user = user;
 
-    const userPhone = user.phone;
+    const userPhone = user!.phone;
 
     const phoneValidation = phone === userPhone;
     if (!phoneValidation) {

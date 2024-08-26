@@ -28,8 +28,7 @@ CardlessController.demoWithdraw = async (req, res) => {
     try {
         const request = req.body;
         request.type = cash_transaction_enum_1.EnumCashTransaction.WITHDRAW;
-        request.user = req.user;
-        const transaction = await CashTransactionService_1.CashTransactionService.store(request);
+        const transaction = await CashTransactionService_1.CashTransactionService.store(request, req.user.id);
         res.json({
             success: true,
             message: 'Withdraw Successfully',
@@ -44,8 +43,7 @@ CardlessController.demoTopup = async (req, res) => {
     try {
         const request = req.body;
         request.type = cash_transaction_enum_1.EnumCashTransaction.TOPUP;
-        request.user = req.user;
-        const transaction = await CashTransactionService_1.CashTransactionService.store(request);
+        const transaction = await CashTransactionService_1.CashTransactionService.store(request, req.user.id);
         res.json({
             success: true,
             message: 'Topup Successfully',

@@ -11,6 +11,7 @@ const qrcode_1 = __importDefault(require("qrcode"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const QrisModel_1 = require("../models/QrisModel");
 const uuid_1 = require("uuid");
+const response_error_1 = require("../handlers/response-error");
 dotenv_1.default.config();
 class QrService {
     // static async transferQr(
@@ -163,7 +164,10 @@ class QrService {
             .andWhere('used', request.used || false)
             .andWhere('expired_at', '>', new Date(Date.now()))
             .orderBy('expired_at', 'desc')
-            .page(request.page, request.size);
+            .page(request.page - 1, request.size);
+        if (!qris.results.length) {
+            throw new response_error_1.ResponseError(404, 'Data not found');
+        }
         return qris;
     }
 }

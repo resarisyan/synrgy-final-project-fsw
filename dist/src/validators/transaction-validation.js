@@ -30,6 +30,14 @@ TransactionValidation.GET_QR = zod_1.z.object({
         }
         return num;
     }),
-    used: zod_1.z.boolean().optional()
+    used: zod_1.z
+        .string()
+        .refine((value) => {
+        if (value !== 'true' && value !== 'false') {
+            throw new Error('Used must be a boolean string');
+        }
+        return true;
+    })
+        .optional()
 });
 //# sourceMappingURL=transaction-validation.js.map

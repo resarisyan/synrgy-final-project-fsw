@@ -35,15 +35,22 @@ export class CashTransactionService {
       request
     );
 
+    if (createRequest.type === EnumCashTransaction.TOPUP) {
+      createRequest.amount = 0;
+    }
+
     if (createRequest.type === EnumCashTransaction.WITHDRAW) {
       if (createRequest.amount < 50000 || createRequest.amount % 50000 !== 0) {
         throw new ResponseError(
           400,
           'Withdraw amount must be a multiple of 50000'
         );
-      }
-
-      if (createRequest.amount > request.user.balance) {
+      } else if (createRequest.amount > 5000000) {
+        throw new ResponseError(
+          400,
+          'Withdraw amount must be less than Rp5.000.000'
+        );
+      } else if (createRequest.amount > request.user.balance) {
         throw new ResponseError(400, 'Saldo tidak mencukupi');
       }
     }
@@ -63,7 +70,8 @@ export class CashTransactionService {
   }
 
   static async store(
-    req: CashTransactionStoreRequest
+    req: CashTransactionStoreRequest,
+    userID: string
   ): Promise<CashTransactionResponse> {
     const storeRequest = Validation.validate(
       CashTransactionValidation.STORE,
@@ -71,12 +79,12 @@ export class CashTransactionService {
     );
 
     const user = await UserModel.query()
-      .findById(req.user.id)
+      .findById(userID)
       .forUpdate()
       .throwIfNotFound();
     const cashTransaction = await CashTransactionModel.query()
       .where({
-        user_id: req.user.id,
+        user_id: userID,
         code: storeRequest.token
       })
       .first()
@@ -91,21 +99,43 @@ export class CashTransactionService {
     }
 
     const isWithdraw = storeRequest.type === EnumCashTransaction.WITHDRAW;
+    const isTopup = storeRequest.type === EnumCashTransaction.TOPUP;
 
     if (isWithdraw && Number(user.balance) < Number(cashTransaction.amount)) {
       throw new ResponseError(400, 'Balance is not enough to withdraw');
     }
 
     const result = await UserModel.transaction(async (trx) => {
+      let transactionAmount = cashTransaction.amount;
+
+      if (isTopup) {
+        if (storeRequest.amount < 50000 || storeRequest.amount % 50000 !== 0) {
+          throw new ResponseError(
+            400,
+            'Topup amount must be a multiple of 50000'
+          );
+        } else if (storeRequest.amount > 5000000) {
+          throw new ResponseError(
+            400,
+            'Topup amount must be less than Rp5.000.000'
+          );
+        } else {
+          await cashTransaction.$query(trx).patch({
+            amount: storeRequest.amount
+          });
+          transactionAmount = storeRequest.amount;
+        }
+      }
+
       const newBalance = isWithdraw
-        ? Number(user.balance) - Number(cashTransaction.amount)
-        : Number(user.balance) + Number(cashTransaction.amount);
+        ? Number(user.balance) - Number(transactionAmount)
+        : Number(user.balance) + Number(transactionAmount);
 
       await user.$query(trx).patch({ balance: newBalance });
 
       await MutationModel.query(trx).insert({
         id: uuidv4(),
-        amount: cashTransaction.amount,
+        amount: transactionAmount,
         mutation_type: EnumMutationType.TRANSFER,
         description: isWithdraw ? 'Withdraw' : 'Topup',
         account_number: user.account_number,

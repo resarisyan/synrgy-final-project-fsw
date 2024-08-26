@@ -8,6 +8,7 @@ export type CashTransactionCreateRequest = {
 };
 
 export type CashTransactionStoreRequest = {
+  amount: number;
   token: string;
   type: EnumCashTransaction;
   user: User;

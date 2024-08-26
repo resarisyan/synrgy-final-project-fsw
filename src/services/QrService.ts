@@ -8,6 +8,7 @@ import { QrisModel } from '../models/QrisModel';
 import { v4 as uuidv4 } from 'uuid';
 import { Page } from 'objection';
 import { GetQrRequest } from '../dtos/request/qr-request';
+import { ResponseError } from '../handlers/response-error';
 dotenv.config();
 
 export class QrService {
@@ -192,7 +193,11 @@ export class QrService {
       .andWhere('used', request.used || false)
       .andWhere('expired_at', '>', new Date(Date.now()))
       .orderBy('expired_at', 'desc')
-      .page(request.page, request.size);
+      .page(request.page - 1, request.size);
+
+    if (!qris.results.length) {
+      throw new ResponseError(404, 'Data not found');
+    }
 
     return qris;
   }

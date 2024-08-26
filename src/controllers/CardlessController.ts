@@ -29,8 +29,10 @@ export class CardlessController {
     try {
       const request = req.body as CashTransactionStoreRequest;
       request.type = EnumCashTransaction.WITHDRAW;
-      request.user = req.user!;
-      const transaction = await CashTransactionService.store(request);
+      const transaction = await CashTransactionService.store(
+        request,
+        req.user!.id
+      );
       res.json({
         success: true,
         message: 'Withdraw Successfully',
@@ -45,8 +47,10 @@ export class CardlessController {
     try {
       const request = req.body as CashTransactionStoreRequest;
       request.type = EnumCashTransaction.TOPUP;
-      request.user = req.user!;
-      const transaction = await CashTransactionService.store(request);
+      const transaction = await CashTransactionService.store(
+        request,
+        req.user!.id
+      );
       res.json({
         success: true,
         message: 'Topup Successfully',

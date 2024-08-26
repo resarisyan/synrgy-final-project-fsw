@@ -161,11 +161,6 @@
     "/api/v1/transactions/demo-withdraw": {
       "post": {
         "tags": ["Transactions"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "summary": "Demo Withdraw",
         "description": "Demo Withdraw",
         "requestBody": {
@@ -173,7 +168,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/definitions/CashTransactionStoreRequest"
+                "$ref": "#/components/definitions/CashTransactionWithdrawStoreRequest"
               }
             }
           }
@@ -200,11 +195,6 @@
     "/api/v1/transactions/demo-topup": {
       "post": {
         "tags": ["Transactions"],
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "summary": "Demo Topup",
         "description": "Demo Topup",
         "requestBody": {
@@ -212,7 +202,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/definitions/CashTransactionStoreRequest"
+                "$ref": "#/components/definitions/CashTransactionTopUpStoreRequest"
               }
             }
           }
@@ -236,6 +226,56 @@
         }
       }
     },
+    "/api/v1/transactions/token-history": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "summary": "Get Token Transaction History (Withdraw and Topup)",
+        "description": "Get Token Transaction History (Withdraw and Topup)",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+
     "/api/v1/mutations": {
       "get": {
         "tags": ["Mutations"],
@@ -419,7 +459,7 @@
         },
         "required": ["amount", "type", "pin"]
       },
-      "CashTransactionStoreRequest": {
+      "CashTransactionWithdrawStoreRequest": {
         "type": "object",
         "properties": {
           "token": {
@@ -430,6 +470,23 @@
           }
         },
         "required": ["token"]
+      },
+      "CashTransactionTopUpStoreRequest": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number"
+          },
+          "token": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "token"
+        ]
       }
     }
   }

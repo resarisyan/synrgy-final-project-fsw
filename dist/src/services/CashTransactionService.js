@@ -20,11 +20,17 @@ class CashTransactionService {
         const currentTime = new Date(Date.now());
         const oneHourLater = new Date(currentTime.getTime() + 3600000);
         const createRequest = validators_1.Validation.validate(cash_transaction_validation_1.CashTransactionValidation.CREATE, request);
+        if (createRequest.type === cash_transaction_enum_1.EnumCashTransaction.TOPUP) {
+            createRequest.amount = 0;
+        }
         if (createRequest.type === cash_transaction_enum_1.EnumCashTransaction.WITHDRAW) {
             if (createRequest.amount < 50000 || createRequest.amount % 50000 !== 0) {
                 throw new response_error_1.ResponseError(400, 'Withdraw amount must be a multiple of 50000');
             }
-            if (createRequest.amount > request.user.balance) {
+            else if (createRequest.amount > 5000000) {
+                throw new response_error_1.ResponseError(400, 'Withdraw amount must be less than Rp5.000.000');
+            }
+            else if (createRequest.amount > request.user.balance) {
                 throw new response_error_1.ResponseError(400, 'Saldo tidak mencukupi');
             }
         }
@@ -40,15 +46,15 @@ class CashTransactionService {
         });
         return (0, cash_transaction_response_1.toCashTransactionResponse)(data);
     }
-    static async store(req) {
+    static async store(req, userID) {
         const storeRequest = validators_1.Validation.validate(cash_transaction_validation_1.CashTransactionValidation.STORE, req);
         const user = await UserModel_1.UserModel.query()
-            .findById(req.user.id)
+            .findById(userID)
             .forUpdate()
             .throwIfNotFound();
         const cashTransaction = await CashTransactionModel_1.CashTransactionModel.query()
             .where({
-            user_id: req.user.id,
+            user_id: userID,
             code: storeRequest.token
         })
             .first()
@@ -63,17 +69,33 @@ class CashTransactionService {
             throw new response_error_1.ResponseError(400, 'Token has already expired');
         }
         const isWithdraw = storeRequest.type === cash_transaction_enum_1.EnumCashTransaction.WITHDRAW;
+        const isTopup = storeRequest.type === cash_transaction_enum_1.EnumCashTransaction.TOPUP;
         if (isWithdraw && Number(user.balance) < Number(cashTransaction.amount)) {
             throw new response_error_1.ResponseError(400, 'Balance is not enough to withdraw');
         }
         const result = await UserModel_1.UserModel.transaction(async (trx) => {
+            let transactionAmount = cashTransaction.amount;
+            if (isTopup) {
+                if (storeRequest.amount < 50000 || storeRequest.amount % 50000 !== 0) {
+                    throw new response_error_1.ResponseError(400, 'Topup amount must be a multiple of 50000');
+                }
+                else if (storeRequest.amount > 5000000) {
+                    throw new response_error_1.ResponseError(400, 'Topup amount must be less than Rp5.000.000');
+                }
+                else {
+                    await cashTransaction.$query(trx).patch({
+                        amount: storeRequest.amount
+                    });
+                    transactionAmount = storeRequest.amount;
+                }
+            }
             const newBalance = isWithdraw
-                ? Number(user.balance) - Number(cashTransaction.amount)
-                : Number(user.balance) + Number(cashTransaction.amount);
+                ? Number(user.balance) - Number(transactionAmount)
+                : Number(user.balance) + Number(transactionAmount);
             await user.$query(trx).patch({ balance: newBalance });
             await MutationModel_1.MutationModel.query(trx).insert({
                 id: (0, uuid_1.v4)(),
-                amount: cashTransaction.amount,
+                amount: transactionAmount,
                 mutation_type: mutation_type_enum_1.EnumMutationType.TRANSFER,
                 description: isWithdraw ? 'Withdraw' : 'Topup',
                 account_number: user.account_number,

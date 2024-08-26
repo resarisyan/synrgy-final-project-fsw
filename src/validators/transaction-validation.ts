@@ -27,6 +27,14 @@ export class TransactionValidation {
       }
       return num;
     }),
-    used: z.boolean().optional()
+    used: z
+      .string()
+      .refine((value) => {
+        if (value !== 'true' && value !== 'false') {
+          throw new Error('Used must be a boolean string');
+        }
+        return true;
+      })
+      .optional()
   });
 }
