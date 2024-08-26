@@ -45,9 +45,12 @@ export class CashTransactionService {
           400,
           'Withdraw amount must be a multiple of 50000'
         );
-      }
-
-      if (createRequest.amount > request.user.balance) {
+      } else if (createRequest.amount > 5000000) {
+        throw new ResponseError(
+          400,
+          'Withdraw amount must be less than Rp5.000.000'
+        );
+      } else if (createRequest.amount > request.user.balance) {
         throw new ResponseError(400, 'Saldo tidak mencukupi');
       }
     }
@@ -116,6 +119,11 @@ export class CashTransactionService {
           throw new ResponseError(
             400,
             'Topup amount must be a multiple of 50000'
+          );
+        } else if (storeRequest.amount > 5000000) {
+          throw new ResponseError(
+            400,
+            'Topup amount must be less than Rp5.000.000'
           );
         } else {
           await cashTransaction.$query(trx).patch({
