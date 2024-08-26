@@ -6,7 +6,6 @@ import { UserRequest } from '../dtos/request/user-request';
 import { errorResponse } from '../dtos/response/error-response';
 import { MutationService } from '../services/MutationService';
 import { Response } from 'express';
-import fs from 'fs';
 
 export class MutationController {
   static async getAll(req: UserRequest, res: Response) {
@@ -45,26 +44,17 @@ export class MutationController {
 
       const pdfFilePath = `mutation.pdf`;
 
-      await MutationService.generatePdf(mutation, pdfFilePath);
+      const pdfBuffer = await MutationService.generatePdf(
+        mutation,
+        pdfFilePath
+      );
 
       res.setHeader(
         'Content-Disposition',
         `attachment; filename="${pdfFilePath}"`
       );
       res.setHeader('Content-Type', 'application/pdf');
-
-      res.download(pdfFilePath, (err) => {
-        if (err) {
-          console.error('Error sending the file:', err);
-          errorResponse({ error: err, res });
-        } else {
-          fs.unlink(pdfFilePath, (unlinkErr) => {
-            if (unlinkErr) {
-              errorResponse({ error: unlinkErr, res });
-            }
-          });
-        }
-      });
+      res.send(Buffer.from(pdfBuffer));
     } catch (error) {
       errorResponse({ error: error as Error, res });
     }
@@ -75,23 +65,17 @@ export class MutationController {
       const request: EstatementRequest =
         req.query as unknown as EstatementRequest;
       const pdfFilePath = `e-statement-${req.user?.full_name}-${new Date().toISOString()}.pdf`;
-      await MutationService.generateEStatement(request, req.user!, pdfFilePath);
+      const pdfBuffer = await MutationService.generateEStatement(
+        request,
+        req.user!,
+        pdfFilePath
+      );
       res.setHeader(
         'Content-Disposition',
         `attachment; filename="${pdfFilePath}"`
       );
       res.setHeader('Content-Type', 'application/pdf');
-      res.download(pdfFilePath, (err) => {
-        if (err) {
-          errorResponse({ error: err, res });
-        } else {
-          fs.unlink(pdfFilePath, (unlinkErr) => {
-            if (unlinkErr) {
-              errorResponse({ error: unlinkErr, res });
-            }
-          });
-        }
-      });
+      res.send(Buffer.from(pdfBuffer));
     } catch (error) {
       errorResponse({ error: error as Error, res });
     }

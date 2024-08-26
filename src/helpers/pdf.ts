@@ -1,7 +1,9 @@
 import puppeteer from 'puppeteer';
 import chromium from '@sparticuz/chromium';
 import puppeteerCore from 'puppeteer-core';
+import dotenv from 'dotenv';
 
+dotenv.config();
 export async function convertHTMLToPDF(
   htmlContent: string,
   pdfFilePath: string,
@@ -29,6 +31,7 @@ export async function convertHTMLToPDF(
     format: 'A4',
     margin: margins
   });
+  await page.close();
   await browser.close();
   return pdfBuffer;
 }

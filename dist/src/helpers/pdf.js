@@ -7,6 +7,8 @@ exports.convertHTMLToPDF = convertHTMLToPDF;
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const chromium_1 = __importDefault(require("@sparticuz/chromium"));
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
 async function convertHTMLToPDF(htmlContent, pdfFilePath, margins = { top: '10mm', right: '10mm', bottom: '10mm', left: '10mm' }) {
     let browser;
     if (process.env.NODE_ENV === 'development') {
@@ -30,6 +32,7 @@ async function convertHTMLToPDF(htmlContent, pdfFilePath, margins = { top: '10mm
         format: 'A4',
         margin: margins
     });
+    await page.close();
     await browser.close();
     return pdfBuffer;
 }

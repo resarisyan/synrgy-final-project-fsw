@@ -124,7 +124,7 @@ class MutationService {
             </p>
           </div>
           </div>`;
-        await (0, pdf_1.convertHTMLToPDF)(html, pdfFilePath);
+        return await (0, pdf_1.convertHTMLToPDF)(html, pdfFilePath);
     }
     static async generateEStatement(req, user, pdfFilePath) {
         const request = validators_1.Validation.validate(mutation_validation_1.MutationValidation.Estatement, req);
@@ -203,10 +203,8 @@ class MutationService {
     </div>
   </div>`;
         }
-        // Close the main container div
         html += `</div>`;
-        // Convert HTML to PDF
-        await (0, pdf_1.convertHTMLToPDF)(html, pdfFilePath);
+        return await (0, pdf_1.convertHTMLToPDF)(html, pdfFilePath);
     }
 }
 exports.MutationService = MutationService;
