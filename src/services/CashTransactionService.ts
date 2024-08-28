@@ -70,13 +70,19 @@ export class CashTransactionService {
   }
 
   static async store(
-    req: CashTransactionStoreRequest,
-    userID: string
+    req: CashTransactionStoreRequest
   ): Promise<CashTransactionResponse> {
     const storeRequest = Validation.validate(
       CashTransactionValidation.STORE,
       req
     );
+
+    const token = req.token;
+    const userId = await CashTransactionModel.query()
+      .findOne({ code: token })
+      .select('user_id');
+
+    const userID = JSON.parse(JSON.stringify(userId)).user_id;
 
     const user = await UserModel.query()
       .findById(userID)

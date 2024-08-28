@@ -19,6 +19,10 @@ export const checkPhoneMiddleware = async (
       .findOne({ code: token })
       .select('user_id');
 
+    if (!userId) {
+      throw new ResponseError(401, 'Token not found');
+    }
+
     const userID = JSON.parse(JSON.stringify(userId)).user_id;
     const request = Validation.validate(GeneralValidation.PHONE, req.body);
     const phone = request.phone;
