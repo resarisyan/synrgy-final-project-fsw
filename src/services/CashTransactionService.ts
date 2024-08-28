@@ -173,10 +173,12 @@ export class CashTransactionService {
         request.createdAtEnd.toISOString()
       ]);
     }
-    if ((await data).length === 0) {
+    const result = await data;
+
+    if (result.length === 0) {
       throw new ResponseError(404, 'Data not found');
     }
 
-    return (await data).map(toCashTransactionHistoryResponse);
+    return result.map(toCashTransactionHistoryResponse);
   }
 }
