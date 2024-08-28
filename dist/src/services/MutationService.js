@@ -4,9 +4,9 @@ exports.MutationService = void 0;
 const validators_1 = require("../validators");
 const response_error_1 = require("../handlers/response-error");
 const mutation_validation_1 = require("../validators/mutation-validation");
-const pdf_1 = require("../helpers/pdf");
 const transaction_type_enum_1 = require("../enums/transaction-type-enum");
 const MutationModel_1 = require("../models/MutationModel");
+const pdf_1 = require("../helpers/pdf");
 class MutationService {
     static async getAll(req, user) {
         const request = validators_1.Validation.validate(mutation_validation_1.MutationValidation.GetMutation, req);
@@ -21,6 +21,9 @@ class MutationService {
         }
         if (request.mutationType) {
             query.where('mutation_type', request.mutationType);
+        }
+        if (request.transactionType) {
+            query.where('transaction_type', request.transactionType);
         }
         if (request.dateRange && request.dateRange.start && request.dateRange.end) {
             const startDate = new Date(request.dateRange.start).toISOString();
@@ -68,7 +71,7 @@ class MutationService {
             updated_at: mutation.updated_at
         };
     }
-    static async generatePdf(mutation, pdfFilePath) {
+    static async generateDocument(mutation, pdfFilePath, outputType) {
         const html = `
      <div style="padding: 24px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
         <div style="position: relative;">
@@ -124,7 +127,7 @@ class MutationService {
             </p>
           </div>
           </div>`;
-        return await (0, pdf_1.convertHTMLToPDF)(html, pdfFilePath);
+        return await (0, pdf_1.convertHTMLToDocument)(html, pdfFilePath, outputType);
     }
     static async generateEStatement(req, user, pdfFilePath) {
         const request = validators_1.Validation.validate(mutation_validation_1.MutationValidation.Estatement, req);
@@ -204,7 +207,7 @@ class MutationService {
   </div>`;
         }
         html += `</div>`;
-        return await (0, pdf_1.convertHTMLToPDF)(html, pdfFilePath);
+        return await (0, pdf_1.convertHTMLToDocument)(html, pdfFilePath);
     }
 }
 exports.MutationService = MutationService;

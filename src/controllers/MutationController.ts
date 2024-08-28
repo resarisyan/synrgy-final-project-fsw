@@ -1,4 +1,6 @@
+import cloudinary from '../config/cloudinary';
 import {
+  DocumentRequest,
   EstatementRequest,
   GetMutationRequest
 } from '../dtos/request/mutation-request';
@@ -37,24 +39,41 @@ export class MutationController {
     }
   }
 
-  static async generatePdf(req: UserRequest, res: Response) {
+  static async generateDocument(req: UserRequest, res: Response) {
     try {
-      const id = req.params.id;
-      const mutation = await MutationService.getOne(id, req.user!);
-
-      const pdfFilePath = `mutation.pdf`;
-
-      const pdfBuffer = await MutationService.generatePdf(
+      const request: DocumentRequest = req.query as unknown as DocumentRequest;
+      const mutation = await MutationService.getOne(request.id, req.user!);
+      const filename = `mutation-${mutation.id}-${new Date().toISOString()}.${request.outputType}`;
+      const bufferData = await MutationService.generateDocument(
         mutation,
-        pdfFilePath
+        filename,
+        request.outputType
       );
 
-      res.setHeader(
-        'Content-Disposition',
-        `attachment; filename="${pdfFilePath}"`
-      );
-      res.setHeader('Content-Type', 'application/pdf');
-      res.send(Buffer.from(pdfBuffer));
+      if (request.outputType === 'pdf') {
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename="pdf-${filename}"`
+        );
+        res.setHeader('Content-Type', `application/pdf`);
+        res.send(Buffer.from(bufferData));
+      } else {
+        const buffer = Buffer.from(bufferData);
+        const base64Image = buffer.toString('base64');
+        const dataUri = `data:application/${request.outputType};base64,${base64Image}`;
+
+        await cloudinary.uploader.upload(dataUri, (error, result) => {
+          if (error) {
+            errorResponse({ error: error as Error, res });
+          } else {
+            res.json({
+              success: true,
+              message: 'Document generated successfully',
+              data: result
+            });
+          }
+        });
+      }
     } catch (error) {
       errorResponse({ error: error as Error, res });
     }

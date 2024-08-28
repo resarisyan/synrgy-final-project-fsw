@@ -7,5 +7,5 @@ export const mutationRouter = express.Router();
 mutationRouter.use(authMiddleware);
 mutationRouter.get('/', MutationController.getAll);
 mutationRouter.get('/estatement', MutationController.generateEstatement);
+mutationRouter.get('/document', MutationController.generateDocument);
 mutationRouter.get('/:id', MutationController.getOne);
-mutationRouter.get('/:id/pdf', MutationController.generatePdf);

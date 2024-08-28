@@ -9,10 +9,11 @@ import {
 } from '../dtos/request/mutation-request';
 import { MutationValidation } from '../validators/mutation-validation';
 import { MutationResponse } from '../dtos/response/mutation-response';
-import { convertHTMLToPDF } from '../helpers/pdf';
 import { EnumMutationType } from '../enums/mutation-type-enum';
 import { EnumTransactionType } from '../enums/transaction-type-enum';
 import { MutationModel } from '../models/MutationModel';
+import { EnumFile } from '../enums/enum-file';
+import { convertHTMLToDocument } from '../helpers/pdf';
 
 export class MutationService {
   static async getAll(
@@ -36,6 +37,10 @@ export class MutationService {
 
     if (request.mutationType) {
       query.where('mutation_type', request.mutationType);
+    }
+
+    if (request.transactionType) {
+      query.where('transaction_type', request.transactionType);
     }
 
     if (request.dateRange && request.dateRange.start && request.dateRange.end) {
@@ -99,9 +104,10 @@ export class MutationService {
     };
   }
 
-  static async generatePdf(
+  static async generateDocument(
     mutation: MutationResponse,
-    pdfFilePath: string
+    pdfFilePath: string,
+    outputType: EnumFile
   ): Promise<Uint8Array> {
     const html = `
      <div style="padding: 24px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
@@ -159,7 +165,7 @@ export class MutationService {
           </div>
           </div>`;
 
-    return await convertHTMLToPDF(html, pdfFilePath);
+    return await convertHTMLToDocument(html, pdfFilePath, outputType);
   }
 
   static async generateEStatement(
@@ -268,6 +274,6 @@ export class MutationService {
     }
 
     html += `</div>`;
-    return await convertHTMLToPDF(html, pdfFilePath);
+    return await convertHTMLToDocument(html, pdfFilePath);
   }
 }
